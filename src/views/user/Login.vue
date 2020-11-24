@@ -13,12 +13,12 @@
         @change="handleTabClick"
       >
         <a-tab-pane key="tab1" tab="账号密码登录">
-          <a-alert v-if="isLoginError" type="error" showIcon style="margin-bottom: 24px;" message="账户或密码错误（admin/ant.design )" />
+          <a-alert v-if="isLoginError" type="error" showIcon style="margin-bottom: 24px;" message="账户或密码错误" />
           <a-form-item>
             <a-input
               size="large"
               type="text"
-              placeholder="账户: admin"
+              placeholder="账户: "
               v-decorator="[
                 'username',
                 {rules: [{ required: true, message: '请输入帐户名或邮箱地址' }, { validator: handleUsernameOrEmail }], validateTrigger: 'change'}
@@ -31,7 +31,7 @@
           <a-form-item>
             <a-input-password
               size="large"
-              placeholder="密码: admin or ant.design"
+              placeholder="密码: "
               v-decorator="[
                 'password',
                 {rules: [{ required: true, message: '请输入密码' }], validateTrigger: 'blur'}
@@ -41,7 +41,7 @@
             </a-input-password>
           </a-form-item>
         </a-tab-pane>
-        <a-tab-pane key="tab2" tab="手机号登录">
+        <!-- <a-tab-pane key="tab2" tab="手机号登录">
           <a-form-item>
             <a-input size="large" type="text" placeholder="手机号" v-decorator="['mobile', {rules: [{ required: true, pattern: /^1[34578]\d{9}$/, message: '请输入正确的手机号' }], validateTrigger: 'change'}]">
               <a-icon slot="prefix" type="mobile" :style="{ color: 'rgba(0,0,0,.25)' }"/>
@@ -66,7 +66,7 @@
               ></a-button>
             </a-col>
           </a-row>
-        </a-tab-pane>
+        </a-tab-pane> -->
       </a-tabs>
 
       <a-form-item>
@@ -76,6 +76,7 @@
           class="forge-password"
           style="float: right;"
         >忘记密码</router-link>
+        <router-link class="register" :to="{ name: 'register' } " style="float: right;margin-right: 20px;">注册账户</router-link>
       </a-form-item>
 
       <a-form-item style="margin-top:24px">
@@ -89,7 +90,7 @@
         >确定</a-button>
       </a-form-item>
 
-      <div class="user-login-other">
+      <!-- <div class="user-login-other">
         <span>其他登录方式</span>
         <a>
           <a-icon class="item-icon" type="alipay-circle"></a-icon>
@@ -101,7 +102,7 @@
           <a-icon class="item-icon" type="weibo-circle"></a-icon>
         </a>
         <router-link class="register" :to="{ name: 'register' }">注册账户</router-link>
-      </div>
+      </div> -->
     </a-form>
 
     <two-step-captcha
@@ -114,11 +115,11 @@
 </template>
 
 <script>
-import md5 from 'md5'
+// import md5 from 'md5'
 import TwoStepCaptcha from '@/components/tools/TwoStepCaptcha'
 import { mapActions } from 'vuex'
 import { timeFix } from '@/utils/util'
-import { getSmsCaptcha, get2step } from '@/api/login'
+// import { getSmsCaptcha, get2step } from '@/api/login'
 
 export default {
   components: {
@@ -143,16 +144,16 @@ export default {
       }
     }
   },
-  created () {
-    get2step({ })
-      .then(res => {
-        this.requiredTwoStepCaptcha = res.result.stepCode
-      })
-      .catch(() => {
-        this.requiredTwoStepCaptcha = false
-      })
-    // this.requiredTwoStepCaptcha = true
-  },
+  // created () {
+  //   get2step({ })
+  //     .then(res => {
+  //       this.requiredTwoStepCaptcha = res.result.stepCode
+  //     })
+  //     .catch(() => {
+  //       this.requiredTwoStepCaptcha = false
+  //     })
+  //   // this.requiredTwoStepCaptcha = true
+  // },
   methods: {
     ...mapActions(['Login', 'Logout']),
     // handler
@@ -189,7 +190,8 @@ export default {
           const loginParams = { ...values }
           delete loginParams.username
           loginParams[!state.loginType ? 'email' : 'username'] = values.username
-          loginParams.password = md5(values.password)
+          loginParams.password = values.password
+          // 登陆
           Login(loginParams)
             .then((res) => this.loginSuccess(res))
             .catch(err => this.requestFailed(err))
@@ -203,51 +205,51 @@ export default {
         }
       })
     },
-    getCaptcha (e) {
-      e.preventDefault()
-      const { form: { validateFields }, state } = this
+    // 手机登陆
+    // getCaptcha (e) {
+    //   e.preventDefault()
+    //   const { form: { validateFields }, state } = this
 
-      validateFields(['mobile'], { force: true }, (err, values) => {
-        if (!err) {
-          state.smsSendBtn = true
+    //   validateFields(['mobile'], { force: true }, (err, values) => {
+    //     if (!err) {
+    //       state.smsSendBtn = true
 
-          const interval = window.setInterval(() => {
-            if (state.time-- <= 0) {
-              state.time = 60
-              state.smsSendBtn = false
-              window.clearInterval(interval)
-            }
-          }, 1000)
+    //       const interval = window.setInterval(() => {
+    //         if (state.time-- <= 0) {
+    //           state.time = 60
+    //           state.smsSendBtn = false
+    //           window.clearInterval(interval)
+    //         }
+    //       }, 1000)
 
-          const hide = this.$message.loading('验证码发送中..', 0)
-          getSmsCaptcha({ mobile: values.mobile }).then(res => {
-            setTimeout(hide, 2500)
-            this.$notification['success']({
-              message: '提示',
-              description: '验证码获取成功，您的验证码为：' + res.result.captcha,
-              duration: 8
-            })
-          }).catch(err => {
-            setTimeout(hide, 1)
-            clearInterval(interval)
-            state.time = 60
-            state.smsSendBtn = false
-            this.requestFailed(err)
-          })
-        }
-      })
-    },
-    stepCaptchaSuccess () {
-      this.loginSuccess()
-    },
-    stepCaptchaCancel () {
-      this.Logout().then(() => {
-        this.loginBtn = false
-        this.stepCaptchaVisible = false
-      })
-    },
+    //       const hide = this.$message.loading('验证码发送中..', 0)
+    //       getSmsCaptcha({ mobile: values.mobile }).then(res => {
+    //         setTimeout(hide, 2500)
+    //         this.$notification['success']({
+    //           message: '提示',
+    //           description: '验证码获取成功，您的验证码为：' + res.result.captcha,
+    //           duration: 8
+    //         })
+    //       }).catch(err => {
+    //         setTimeout(hide, 1)
+    //         clearInterval(interval)
+    //         state.time = 60
+    //         state.smsSendBtn = false
+    //         this.requestFailed(err)
+    //       })
+    //     }
+    //   })
+    // },
+    // stepCaptchaSuccess () {
+    //   this.loginSuccess()
+    // },
+    // stepCaptchaCancel () {
+    //   this.Logout().then(() => {
+    //     this.loginBtn = false
+    //     this.stepCaptchaVisible = false
+    //   })
+    // },
     loginSuccess (res) {
-      console.log(res)
       // check res.homePage define, set $router.push name res.homePage
       // Why not enter onComplete
       /*
