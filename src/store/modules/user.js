@@ -1,10 +1,12 @@
 import storage from 'store'
-import { login, getInfo, logout } from '@/api/login'
-import { ACCESS_TOKEN } from '@/store/mutation-types'
+// import { login, getInfo, logout } from '@/api/login'
+import { login, getInfo, refresh } from '@/api/login'
+import { ACCESS_TOKEN, REFRESH_TOKEN } from '@/store/mutation-types'
 import { welcome } from '@/utils/util'
 
 const user = {
   state: {
+    refresh: '',
     token: '',
     name: '',
     welcome: '',
@@ -14,6 +16,9 @@ const user = {
   },
 
   mutations: {
+    SET_REFRESH: (state, refresh) => {
+      state.refresh = refresh
+    },
     SET_TOKEN: (state, token) => {
       state.token = token
     },
@@ -37,9 +42,11 @@ const user = {
     Login ({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
         login(userInfo).then(response => {
-          const result = response.result
-          storage.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
-          commit('SET_TOKEN', result.token)
+          const result = response.data
+          storage.set(ACCESS_TOKEN, result.access, 60 * 60 * 1000)
+          storage.set(REFRESH_TOKEN, result.refresh, 1 * 24 * 60 * 60 * 1000)
+          commit('SET_TOKEN', result.access)
+          commit('SET_REFRESH', result.refresh)
           resolve()
         }).catch(error => {
           reject(error)
@@ -51,8 +58,8 @@ const user = {
     GetInfo ({ commit }) {
       return new Promise((resolve, reject) => {
         getInfo().then(response => {
-          const result = response.result
-
+          const result = response.data
+          /*
           if (result.role && result.role.permissions.length > 0) {
             const role = result.role
             role.permissions = result.role.permissions
@@ -63,14 +70,19 @@ const user = {
               }
             })
             role.permissionList = role.permissions.map(permission => { return permission.permissionId })
-            commit('SET_ROLES', result.role)
+          */
+
+          // 简化了前端的权限管理，没有 active
+          if (result.roles) {
+            const roles = result.roles.map(role => { return role.name })
+            commit('SET_ROLES', roles)
             commit('SET_INFO', result)
           } else {
             reject(new Error('getInfo: roles must be a non-null array !'))
           }
 
-          commit('SET_NAME', { name: result.name, welcome: welcome() })
-          commit('SET_AVATAR', result.avatar)
+          commit('SET_NAME', { name: result.username, welcome: welcome() })
+          // commit('SET_AVATAR', result.avatar)
 
           resolve(response)
         }).catch(error => {
@@ -79,19 +91,35 @@ const user = {
       })
     },
 
-    // 登出
-    Logout ({ commit, state }) {
-      return new Promise((resolve) => {
-        logout(state.token).then(() => {
+    // 使用 refresh 更新 access
+    refreshToken ({ commit, state }) {
+      const refreshInfo = { 'refresh': storage.get(REFRESH_TOKEN) }
+      return new Promise((resolve, reject) => {
+        refresh(refreshInfo).then(response => {
+          const result = response.data
+          storage.set(ACCESS_TOKEN, result.access, 60 * 60 * 1000)
+          commit('SET_TOKEN', result.access)
           resolve()
-        }).catch(() => {
-          resolve()
-        }).finally(() => {
-          commit('SET_TOKEN', '')
-          commit('SET_ROLES', [])
-          storage.remove(ACCESS_TOKEN)
+        }).catch(error => {
+          reject(error)
         })
       })
+    },
+
+    // 登出
+    Logout ({ commit, state }) {
+      // return new Promise((resolve) => {
+      //   logout(state.token).then(() => {
+      // //     resolve()
+      // //   }).catch(() => {
+      // //     resolve()
+      // //   }).finally(() => {
+      // //     commit('SET_TOKEN', '')
+      // //     commit('SET_ROLES', [])
+      //     storage.remove(ACCESS_TOKEN)
+      //   })
+      // })
+      storage.remove(ACCESS_TOKEN)
     }
 
   }
