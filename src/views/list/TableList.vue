@@ -1,61 +1,24 @@
 <template>
   <page-header-wrapper>
     <a-card :bordered="false">
+
       <div class="table-page-search-wrapper">
         <a-form layout="inline">
           <a-row :gutter="48">
             <a-col :md="8" :sm="24">
-              <a-form-item label="规则编号">
-                <a-input v-model="queryParam.id" placeholder=""/>
+              <a-form-item label="编号">
+                <a-input v-model="queryParam.sampleId" placeholder=""/>
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
-              <a-form-item label="使用状态">
-                <a-select v-model="queryParam.status" placeholder="请选择" default-value="0">
-                  <a-select-option value="0">全部</a-select-option>
-                  <a-select-option value="1">关闭</a-select-option>
-                  <a-select-option value="2">运行中</a-select-option>
-                </a-select>
+              <a-form-item label="姓名">
+                <a-input v-model="queryParam.patientName" placeholder=""/>
               </a-form-item>
             </a-col>
-            <template v-if="advanced">
-              <a-col :md="8" :sm="24">
-                <a-form-item label="调用次数">
-                  <a-input-number v-model="queryParam.callNo" style="width: 100%"/>
-                </a-form-item>
-              </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item label="更新日期">
-                  <a-date-picker v-model="queryParam.date" style="width: 100%" placeholder="请输入更新日期"/>
-                </a-form-item>
-              </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item label="使用状态">
-                  <a-select v-model="queryParam.useStatus" placeholder="请选择" default-value="0">
-                    <a-select-option value="0">全部</a-select-option>
-                    <a-select-option value="1">关闭</a-select-option>
-                    <a-select-option value="2">运行中</a-select-option>
-                  </a-select>
-                </a-form-item>
-              </a-col>
-              <a-col :md="8" :sm="24">
-                <a-form-item label="使用状态">
-                  <a-select placeholder="请选择" default-value="0">
-                    <a-select-option value="0">全部</a-select-option>
-                    <a-select-option value="1">关闭</a-select-option>
-                    <a-select-option value="2">运行中</a-select-option>
-                  </a-select>
-                </a-form-item>
-              </a-col>
-            </template>
             <a-col :md="!advanced && 8 || 24" :sm="24">
               <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
                 <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
                 <a-button style="margin-left: 8px" @click="() => this.queryParam = {}">重置</a-button>
-                <a @click="toggleAdvanced" style="margin-left: 8px">
-                  {{ advanced ? '收起' : '展开' }}
-                  <a-icon :type="advanced ? 'up' : 'down'"/>
-                </a>
               </span>
             </a-col>
           </a-row>
@@ -63,12 +26,11 @@
       </div>
 
       <div class="table-operator">
-        <a-button type="primary" icon="plus" @click="handleAdd">新建</a-button>
+        <!-- <a-button type="primary" icon="plus" @click="handleAdd">新建</a-button> -->
         <a-dropdown v-action:edit v-if="selectedRowKeys.length > 0">
-          <a-menu slot="overlay">
+          <a-menu slot="overlay" @click="handleBatch">
             <a-menu-item key="1"><a-icon type="delete" />删除</a-menu-item>
-            <!-- lock | unlock -->
-            <a-menu-item key="2"><a-icon type="lock" />锁定</a-menu-item>
+            <a-menu-item key="2"><a-icon type="to-top" />置顶</a-menu-item>
           </a-menu>
           <a-button style="margin-left: 8px">
             批量操作 <a-icon type="down" />
@@ -79,41 +41,76 @@
       <s-table
         ref="table"
         size="default"
-        rowKey="key"
+        rowKey="id"
+        :pageSize="20"
         :columns="columns"
         :data="loadData"
-        :alert="true"
+        :alert="false"
         :rowSelection="rowSelection"
         showPagination="auto"
+        tableLayout="auto"
       >
         <span slot="serial" slot-scope="text, record, index">
           {{ index + 1 }}
         </span>
+        <span slot="time" slot-scope="text">
+          {{ text | formatDate }}
+        </span>
         <span slot="status" slot-scope="text">
           <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" />
-        </span>
-        <span slot="description" slot-scope="text">
-          <ellipsis :length="4" tooltip>{{ text }}</ellipsis>
         </span>
 
         <span slot="action" slot-scope="text, record">
           <template>
-            <a @click="handleEdit(record)">配置</a>
-            <a-divider type="vertical" />
-            <a @click="handleSub(record)">订阅报警</a>
+            <a @click="handleEdit(record)">详情</a>
+            <a-divider type="vertical" :disabled="record.isdoing===false" />
+            <a @click="handleDelete(record)" :disabled="record.isdoing===false">删除</a>
+            <a-divider type="vertical" v-show="record.order === null"/>
+            <a @click="handleAddQueue(record)" v-show="record.order === null">下载</a>
+            <a-divider type="vertical" v-show="record.order !== null"/>
+            <a @click="handledeleteQueue(record)" v-show="record.order !== null">取消下载</a>
+            <a-divider type="vertical" v-show="record.order !== null"/>
+            <a @click="handleTopQueue(record)" v-show="record.order !== null">置顶</a>
           </template>
         </span>
       </s-table>
 
       <create-form
         ref="createModal"
+        title="新建任务"
+        :primaryKey="primaryKey"
         :visible="visible"
         :loading="confirmLoading"
         :model="mdl"
+        :fields="fields"
         @cancel="handleCancel"
-        @ok="handleOk"
-      />
-      <step-by-step-modal ref="modal" @ok="handleOk"/>
+        @ok="handleOk">
+        <div slot="fields">
+          <a-form-item label="任务状态">
+            <a-input disabled v-decorator="['status', {rules: [{ required: false, message: '不能为空！', whitespace:true }]}]" />
+          </a-form-item>
+          <a-form-item label="原始数据保存路径">
+            <a-textarea v-decorator="['savePath', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]" />
+          </a-form-item>
+          <a-form-item label="结果数据保存路径">
+            <a-textarea v-decorator="['resultPath', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]" />
+          </a-form-item>
+          <a-form-item label="R1">
+            <a-textarea disabled v-decorator="['r1File', {rules: [{ required: false, message: '不能为空！', whitespace:true }]}]" />
+          </a-form-item>
+          <a-form-item label="R1-MD5">
+            <a-input disabled v-decorator="['r1Md5', {rules: [{ required: false, message: '不能为空！', whitespace:true }]}]" />
+          </a-form-item>
+          <a-form-item label="R2">
+            <a-textarea disabled v-decorator="['r2File', {rules: [{ required: false, message: '不能为空！', whitespace:true }]}]" />
+          </a-form-item>
+          <a-form-item label="R2-MD5">
+            <a-input disabled v-decorator="['r2Md5', {rules: [{ required: false, message: '不能为空！', whitespace:true }]}]" />
+          </a-form-item>
+        </div>
+      </create-form>
+      <!-- <step-by-step-modal ref="modal" @ok="handleOk"/> -->
+
     </a-card>
   </page-header-wrapper>
 </template>
@@ -121,10 +118,12 @@
 <script>
 import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
-import { getRoleList, getServiceList } from '@/api/manage'
+// import { getRoleList, getServiceList } from '@/api/manage'
+import { getDownloadTask, saveTask, deleteTask } from '@/api/manage'
 
 import StepByStepModal from './modules/StepByStepModal'
 import CreateForm from './modules/CreateForm'
+import { formatDate } from '../../utils/util.js'
 
 const columns = [
   {
@@ -132,20 +131,22 @@ const columns = [
     scopedSlots: { customRender: 'serial' }
   },
   {
-    title: '规则编号',
-    dataIndex: 'no'
+    title: '样本编号',
+    dataIndex: 'sampleId'
   },
   {
-    title: '描述',
-    dataIndex: 'description',
-    scopedSlots: { customRender: 'description' }
+    title: '姓名',
+    dataIndex: 'patientName'
   },
   {
-    title: '服务调用次数',
-    dataIndex: 'callNo',
-    sorter: true,
-    needTotal: true,
-    customRender: (text) => text + ' 次'
+    title: '保存地址',
+    dataIndex: 'savePath',
+    scopedSlots: { customRender: 'savePath' }
+  },
+  {
+    title: '更新时间',
+    dataIndex: 'createDate',
+    scopedSlots: { customRender: 'time' }
   },
   {
     title: '状态',
@@ -153,36 +154,48 @@ const columns = [
     scopedSlots: { customRender: 'status' }
   },
   {
-    title: '更新时间',
-    dataIndex: 'updatedAt',
-    sorter: true
-  },
-  {
     title: '操作',
     dataIndex: 'action',
-    width: '150px',
     scopedSlots: { customRender: 'action' }
   }
 ]
 
 const statusMap = {
-  0: {
+  'Standby': {
     status: 'default',
-    text: '关闭'
+    text: '就绪'
   },
-  1: {
+  'Underway': {
     status: 'processing',
-    text: '运行中'
+    text: '正在下载'
   },
-  2: {
+  'DownloadSuccess': {
     status: 'success',
-    text: '已上线'
+    text: '下载成功'
   },
-  3: {
+  'DownloadError': {
     status: 'error',
-    text: '异常'
+    text: '下载失败'
+  },
+  'UnknownMD5': {
+    status: 'error',
+    text: 'MD5未知'
+  },
+  'BadFile': {
+    status: 'error',
+    text: '文件损坏'
+  },
+  'FolderExistsError': {
+    status: 'error',
+    text: '文件夹已存在'
+  },
+  'Success': {
+    status: 'success',
+    text: '完成'
   }
 }
+
+const fields = ['status', 'savePath', 'resultPath', 'r1File', 'r1Md5', 'r2File', 'r2Md5']
 
 export default {
   name: 'TableList',
@@ -194,11 +207,13 @@ export default {
   },
   data () {
     this.columns = columns
+    this.fields = fields
+    this.primaryKey = 'id'
     return {
       // create model
       visible: false,
       confirmLoading: false,
-      mdl: null,
+      mdl: { primaryKey: 0 },
       // 高级搜索 展开/关闭
       advanced: false,
       // 查询参数
@@ -207,9 +222,33 @@ export default {
       loadData: parameter => {
         const requestParameters = Object.assign({}, parameter, this.queryParam)
         console.log('loadData request parameters:', requestParameters)
-        return getServiceList(requestParameters)
+        return getDownloadTask(requestParameters)
           .then(res => {
-            return res.result
+            var records = []
+            for (var i = 0; i < res.data.results.length; i++) {
+              var item = res.data.results[i]
+              // 添加样本信息
+              item.sampleId = item.sample.sampleId
+              item.patientName = item.sample.name
+
+              // R1 R2
+              for (var ii = 0; ii < item.files.length; ii++) {
+                var fileInfo = item.files[ii]
+                if (fileInfo.rename.toString().includes('R1')) {
+                  item.r1File = fileInfo.remotePath
+                  item.r1Md5 = fileInfo.md5
+                } else {
+                  if (fileInfo.rename.toString().includes('R2')) {
+                    item.r2File = fileInfo.remotePath
+                    item.r2Md5 = fileInfo.md5
+                  }
+                }
+              }
+
+              records.push(item)
+            }
+            res.data.results = records
+            return res.data
           })
       },
       selectedRowKeys: [],
@@ -222,10 +261,11 @@ export default {
     },
     statusTypeFilter (type) {
       return statusMap[type].status
-    }
-  },
-  created () {
-    getRoleList({ t: new Date() })
+    },
+    formatDate (time) {
+        var date = new Date(time)
+        return formatDate(date, 'yyyy-MM-dd')
+      }
   },
   computed: {
     rowSelection () {
@@ -236,11 +276,8 @@ export default {
     }
   },
   methods: {
-    handleAdd () {
-      this.mdl = null
-      this.visible = true
-    },
     handleEdit (record) {
+      console.log(record)
       this.visible = true
       this.mdl = { ...record }
     },
@@ -251,12 +288,8 @@ export default {
         if (!errors) {
           console.log('values', values)
           if (values.id > 0) {
-            // 修改 e.g.
-            new Promise((resolve, reject) => {
-              setTimeout(() => {
-                resolve()
-              }, 1000)
-            }).then(res => {
+            // 修改
+            saveTask(values).then(res => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
@@ -268,11 +301,7 @@ export default {
             })
           } else {
             // 新增
-            new Promise((resolve, reject) => {
-              setTimeout(() => {
-                resolve()
-              }, 1000)
-            }).then(res => {
+            saveTask(values).then(res => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
@@ -294,12 +323,60 @@ export default {
       const form = this.$refs.createModal.form
       form.resetFields() // 清理表单数据（可不做）
     },
-    handleSub (record) {
-      if (record.status !== 0) {
-        this.$message.info(`${record.no} 订阅成功`)
-      } else {
-        this.$message.error(`${record.no} 订阅失败，规则已关闭`)
+    handleDelete (record) {
+      this.confirmLoading = true
+      deleteTask(record.id).then(res => {
+        this.confirmLoading = false
+        this.$refs.table.refresh()
+        this.$message.info('删除成功')
+      })
+    },
+    handleAddQueue (record) {
+      this.confirmLoading = true
+      saveTask({ 'id': record.id, 'order': -new Date() / 1000 }).then(res => {
+        this.confirmLoading = false
+        this.$refs.table.refresh()
+        this.$message.info('添加任务成功')
+      })
+    },
+    handledeleteQueue (record) {
+      this.confirmLoading = true
+      saveTask({ 'id': record.id, 'order': null }).then(res => {
+        this.confirmLoading = false
+        this.$refs.table.refresh()
+        this.$message.info('取消成功')
+      })
+    },
+    handleTopQueue (record) {
+      this.confirmLoading = true
+      saveTask({ 'id': record.id, 'order': new Date() / 1000 }).then(res => {
+        this.confirmLoading = false
+        this.$refs.table.refresh()
+        this.$message.info('置顶成功')
+      })
+    },
+    // 批量操作
+    handleBatch ({ key }) {
+      this.confirmLoading = true
+      for (var index = 0; index < this.selectedRowKeys.length; index++) {
+        // 批量删除
+        var recordId = this.selectedRowKeys[index]
+        console.log(typeof (key), recordId)
+        if (key === '1') {
+          deleteTask(recordId).then((recordId) => {
+            this.$message.info('删除成功')
+          })
+        }
+
+        // 批量置顶
+        if (key === '2') {
+          saveTask({ 'id': recordId, 'order': new Date() / 1000 }).then((recordId) => {
+            this.$message.info('置顶成功')
+          })
+        }
       }
+      this.confirmLoading = false
+      this.$refs.table.refresh()
     },
     onSelectChange (selectedRowKeys, selectedRows) {
       this.selectedRowKeys = selectedRowKeys

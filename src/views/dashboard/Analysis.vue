@@ -1,5 +1,25 @@
 <template>
   <div>
+
+    <a-row :gutter="24">
+      <a-col :style="{ marginBottom: '24px' }">
+        <a-card :loading="loading" :bordered="false" :body-style="{padding: '0'}">
+          <page-header-wrapper>
+            <template v-slot:content>
+              <div class="ant-pro-page-header-search">
+                <a-input-search size="large" style="width: 80%; max-width: 522px;">
+                  <template v-slot:enterButton>
+                    搜索
+                  </template>
+                </a-input-search>
+              </div>
+            </template>
+            <router-view />
+          </page-header-wrapper>
+        </a-card>
+      </a-col>
+    </a-row>
+
     <a-row :gutter="24">
       <a-col :sm="24" :md="12" :xl="6" :style="{ marginBottom: '24px' }">
         <chart-card :loading="loading" title="总销售额" total="￥126,560">
@@ -208,6 +228,7 @@
         </a-col>
       </a-row>
     </div>
+
   </div>
 </template>
 
@@ -372,6 +393,11 @@ export default {
 </script>
 
 <style lang="less" scoped>
+  .ant-pro-page-header-search {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
   .extra-wrapper {
     line-height: 55px;
     padding-right: 24px;
