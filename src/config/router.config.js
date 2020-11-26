@@ -1,7 +1,9 @@
 // eslint-disable-next-line
 import { UserLayout, BasicLayout, BlankLayout, PageView } from '@/layouts'
 // import { bxAnaalyse } from '@/core/icons'
+// 可选图标：https://www.antdv.com/components/icon/#Custom-Font-Icon
 
+// eslint-disable-next-line
 const RouteView = {
   name: 'RouteView',
   render: (h) => h('router-view')
@@ -336,23 +338,38 @@ export const asyncRouterMap = [
     name: 'index',
     component: BasicLayout,
     meta: { title: 'menu.home' },
-    redirect: '/sample',
+    // redirect: '/sample',
+    redirect: '/sample/download/',
     children: [
+      // {
+      //   path: '/sample',
+      //   name: 'sample',
+      //   component: RouteView,
+      //   redirect: '/sample/download',
+      //   meta: { title: '样本管理', icon: 'table', permission: [ 'default', 'superuser' ] },
+      //   children: [
+      //     {
+      //       path: '/sample/download/:pageNo([1-9]\\d*)?',
+      //       name: 'TableListWrapper',
+      //       hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+      //       component: () => import('@/views/list/TableList'),
+      //       meta: { title: '数据下载', keepAlive: true, permission: [ 'default', 'superuser' ] }
+      //     }
+      //   ]
+      // }
       {
-        path: '/sample',
-        name: 'sample',
-        component: RouteView,
-        redirect: '/sample/download',
-        meta: { title: '样本管理', icon: 'table', permission: [ 'default', 'superuser' ] },
-        children: [
-          {
-            path: '/sample/download/:pageNo([1-9]\\d*)?',
-            name: 'TableListWrapper',
-            hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
-            component: () => import('@/views/list/TableList'),
-            meta: { title: '数据下载', keepAlive: true, permission: [ 'default', 'superuser' ] }
-          }
-        ]
+        path: '/sample/download/:pageNo([1-9]\\d*)?',
+        name: 'TableListWrapper',
+        hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+        component: () => import('@/views/list/TableList'),
+        meta: { title: '数据下载', keepAlive: true, icon: 'download', permission: [ 'default', 'superuser' ] }
+      },
+      {
+        path: '/sample/analysis/:pageNo([1-9]\\d*)?',
+        name: 'analysis',
+        hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+        component: () => import('@/views/list/AnalysisTableList'),
+        meta: { title: '报告状态', keepAlive: true, icon: 'radar-chart', permission: [ 'default', 'superuser' ] }
       }
     ]
   },

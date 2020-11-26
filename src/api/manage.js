@@ -7,7 +7,8 @@ const api = {
   // permission: '/permission',
   // permissionNoPager: '/permission/no-pager',
   // orgTree: '/org/tree'
-  downloadTask: '/download/tasks/'
+  downloadTask: '/download/tasks/',
+  analysis: '/recorder/analysis/'
 }
 
 export default api
@@ -16,10 +17,7 @@ export function getDownloadTask (parameter) {
   return request({
     url: api.downloadTask,
     method: 'get',
-    params: parameter,
-    headers: {
-      'Content-Type': 'application/json;charset=UTF-8'
-    }
+    params: parameter
   })
 }
 
@@ -40,60 +38,27 @@ export function deleteTask (id) {
   })
 }
 
-// export function getUserList (parameter) {
-//   return request({
-//     url: api.user,
-//     method: 'get',
-//     params: parameter
-//   })
-// }
+export function getAnalysis (parameter) {
+  return request({
+    url: api.analysis,
+    method: 'get',
+    params: parameter
+  })
+}
 
-// export function getRoleList (parameter) {
-//   return request({
-//     url: api.role,
-//     method: 'get',
-//     params: parameter
-//   })
-// }
+// 修改
+export function saveAnalysis (record) {
+  return request({
+    url: api.analysis + record.id + '/',
+    method: 'patch',
+    data: record
+  })
+}
 
-// export function getServiceList (parameter) {
-//   return request({
-//     url: api.service,
-//     method: 'get',
-//     params: parameter
-//   })
-// }
-
-// export function getPermissions (parameter) {
-//   return request({
-//     url: api.permissionNoPager,
-//     method: 'get',
-//     params: parameter
-//   })
-// }
-
-// export function getOrgTree (parameter) {
-//   return request({
-//     url: api.orgTree,
-//     method: 'get',
-//     params: parameter
-//   })
-// }
-
-// // id == 0 add     post
-// // id != 0 update  put
-// export function saveService (parameter) {
-//   return request({
-//     url: api.service,
-//     method: parameter.id === 0 ? 'post' : 'put',
-//     data: parameter
-//   })
-// }
-
-// export function saveSub (sub) {
-//   return request({
-//     url: '/sub',
-//     method: sub.id === 0 ? 'post' : 'put',
-//     data: sub
-//   })
-// }
+// 创建或修改
+export function deleteAnalysis (id) {
+  return request({
+    url: api.analysis + id + '/',
+    method: 'delete'
+  })
+}

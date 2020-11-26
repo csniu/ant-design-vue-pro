@@ -161,9 +161,13 @@ const columns = [
 ]
 
 const statusMap = {
-  'Standby': {
+  'NotDownload': {
     status: 'default',
-    text: '就绪'
+    text: '无需下载'
+  },
+  'Standby': {
+    status: 'warning',
+    text: '排队中'
   },
   'Underway': {
     status: 'processing',
@@ -190,7 +194,7 @@ const statusMap = {
     text: '文件夹已存在'
   },
   'Success': {
-    status: 'success',
+    status: 'default',
     text: '完成'
   }
 }
