@@ -12,6 +12,7 @@ Router.prototype.push = function push (location, onResolve, onReject) {
 Vue.use(Router)
 
 export default new Router({
-  mode: 'history',
+  // https://pro.antdv.com/docs/deploy#%E5%89%8D%E7%AB%AF%E8%B7%AF%E7%94%B1%E4%B8%8E%E6%9C%8D%E5%8A%A1%E7%AB%AF%E7%9A%84%E7%BB%93%E5%90%88
+  mode: 'hash', // 使用 hashHistory 路由模式
   routes: constantRouterMap
 })
