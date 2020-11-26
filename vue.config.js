@@ -117,7 +117,9 @@ const vueConfig = {
   productionSourceMap: false,
   lintOnSave: undefined,
   // babel-loader no-ignore node_modules/*
-  transpileDependencies: []
+  transpileDependencies: [],
+  // 静态文件引用前缀
+  publicPath: '/static/'
 }
 
 // preview.pro.loacg.com only do not use in your production;
