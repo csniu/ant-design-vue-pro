@@ -11,8 +11,8 @@
     :i18nRender="i18nRender"
     v-bind="settings"
   >
-
-    <setting-drawer :settings="settings" @change="handleSettingChange" />
+    <!-- 开发环境下的颜色和布局按钮 -->
+    <!-- <setting-drawer :settings="settings" @change="handleSettingChange" /> -->
     <template v-slot:rightContentRender>
       <right-content :top-menu="settings.layout === 'topmenu'" :is-mobile="isMobile" :theme="settings.theme" />
     </template>
