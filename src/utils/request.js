@@ -25,10 +25,14 @@ const errorHandler = (error) => {
     const errorCode = data.code
     const status = error.response.status
     const config = error.response.config
+    console.log('请求错误')
+    console.log('请求数据：', config)
+    console.log('响应数据：', data)
     // 从 localstorage 获取 token
     const token = storage.get(ACCESS_TOKEN)
     // 权限验证失败
     if (status === 403) {
+      console.log('权限认证失败')
       notification.error({
         message: '禁止的',
         description: data.message
@@ -36,11 +40,13 @@ const errorHandler = (error) => {
     }
     // refresh 过期
     if ((status === 401) && (errorCode !== 'token_not_valid')) {
+      console.log('refresh 过期')
       notification.error({
         message: '未授权的',
         description: '授权验证失败'
       })
       if (token) {
+        console.log('logout')
         store.dispatch('Logout').then(() => {
           setTimeout(() => {
             window.location.reload()
@@ -50,9 +56,12 @@ const errorHandler = (error) => {
     }
     // access 过期
     if ((status === 401) && (errorCode === 'token_not_valid')) {
+      console.log('access 过期')
+      console.log('正在更新：', isRefreshing)
       if (!isRefreshing) {
         isRefreshing = true
         return store.dispatch('refreshToken').then(response => {
+          console.log('access 刷新成功')
           // const { token } = store.ACCESS_TOKEN
           const token = storage.get(ACCESS_TOKEN)
           // request.defaults.headers['Authorization'] = 'Bearer ' + token
