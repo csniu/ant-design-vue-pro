@@ -1,13 +1,15 @@
 <template>
   <div :class="wrpCls">
     <avatar-dropdown :menu="showMenu" :current-user="currentUser" :class="prefixCls" />
-    <select-lang :class="prefixCls" />
+    <!-- 多语言选择按钮 -->
+    <!-- <select-lang :class="prefixCls" /> -->
   </div>
 </template>
 
 <script>
 import AvatarDropdown from './AvatarDropdown'
 import SelectLang from '@/components/SelectLang'
+import store from '../../store'
 
 export default {
   name: 'RightContent',
@@ -50,7 +52,8 @@ export default {
   mounted () {
     setTimeout(() => {
       this.currentUser = {
-        name: 'Serati Ma'
+        // 使用用户名
+        name: store.getters.nickname
       }
     }, 1500)
   }
