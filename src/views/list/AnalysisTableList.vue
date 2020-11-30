@@ -170,6 +170,9 @@ export default {
   },
   filters: {
     statusFilter (type) {
+      if (type === null) {
+        type = ''
+      }
       if (type === 'Success') {
         return '已完成'
       } else {
