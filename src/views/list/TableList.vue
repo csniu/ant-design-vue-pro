@@ -56,6 +56,9 @@
         <span slot="time" slot-scope="text">
           {{ text | formatDate }}
         </span>
+        <span slot="savePath" slot-scope="text">
+          <ellipsis :length="40" tooltip>{{ text }}</ellipsis>
+        </span>
         <span slot="status" slot-scope="text">
           <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" />
         </span>
@@ -63,14 +66,16 @@
         <span slot="action" slot-scope="text, record">
           <template>
             <a @click="handleEdit(record)">详情</a>
-            <a-divider type="vertical" :disabled="record.isdoing===false" />
-            <a @click="handleDelete(record)" :disabled="record.isdoing===false">删除</a>
-            <a-divider type="vertical" v-show="record.order === null"/>
-            <a @click="handleAddQueue(record)" v-show="record.order === null">下载</a>
-            <a-divider type="vertical" v-show="record.order !== null"/>
-            <a @click="handledeleteQueue(record)" v-show="record.order !== null">取消下载</a>
-            <a-divider type="vertical" v-show="record.order !== null"/>
-            <a @click="handleTopQueue(record)" v-show="record.order !== null">置顶</a>
+            <span v-show="record.isDoing!==true">
+              <a-divider type="vertical" />
+              <a @click="handleDelete(record)">删除</a>
+              <a-divider type="vertical" v-show="record.order === null"/>
+              <a @click="handleAddQueue(record)" v-show="record.order === null">下载</a>
+              <a-divider type="vertical" v-show="record.order !== null"/>
+              <a @click="handledeleteQueue(record)" v-show="record.order !== null">取消下载</a>
+              <a-divider type="vertical" v-show="record.order !== null"/>
+              <a @click="handleTopQueue(record)" v-show="record.order !== null">置顶</a>
+            </span>
           </template>
         </span>
       </s-table>
@@ -161,10 +166,6 @@ const columns = [
 ]
 
 const statusMap = {
-  'NotDownload': {
-    status: 'default',
-    text: '无需下载'
-  },
   'Standby': {
     status: 'warning',
     text: '排队中'
@@ -232,6 +233,9 @@ export default {
             for (var i = 0; i < res.data.results.length; i++) {
               var item = res.data.results[i]
               // 添加样本信息
+              if (item.sample === undefined) {
+                 item.sample = { 'sampleId': '', 'name': '' }
+              }
               item.sampleId = item.sample.sampleId
               item.patientName = item.sample.name
 
