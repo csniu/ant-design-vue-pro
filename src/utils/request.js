@@ -38,24 +38,20 @@ const errorHandler = (error) => {
         description: data.message
       })
     }
-    // refresh 过期
-    if ((status === 401) && (errorCode !== 'token_not_valid')) {
-      console.log('refresh 过期')
-      notification.error({
-        message: '未授权的',
-        description: '授权验证失败'
-      })
-      if (token) {
-        console.log('logout')
-        store.dispatch('Logout').then(() => {
-          setTimeout(() => {
-            window.location.reload()
-          }, 1500)
-        })
-      }
-    }
+
     // access 过期
-    if ((status === 401) && (errorCode === 'token_not_valid')) {
+    // {
+    //   "detail": "Given token not valid for any token type",
+    //   "code": "token_not_valid",
+    //   "messages": [
+    //     {
+    //       "token_class": "AccessToken",
+    //       "token_type": "access",
+    //       "message": "Token is invalid or expired"
+    //     }
+    //   ]
+    // }
+    if ((status === 401) && (errorCode === 'token_not_valid') && (data.messages)) {
       console.log('access 过期')
       console.log('正在更新：', isRefreshing)
       if (!isRefreshing) {
@@ -89,7 +85,27 @@ const errorHandler = (error) => {
         })
       }
     }
-
+    // refresh 过期
+    // {
+    //   "detail": "Token 'exp' claim has expired",
+    //   "code": "token_not_valid"
+    // }
+    if ((status === 401) && (errorCode === 'token_not_valid') && (!data.messages)) {
+      console.log('refresh 过期')
+      notification.error({
+        message: '未授权的',
+        description: '授权验证失败'
+      })
+      if (token) {
+        console.log('logout')
+        store.dispatch('Logout').then(() => {
+          console.log('退出成功')
+          setTimeout(() => {
+            window.location.reload()
+          }, 1500)
+        })
+      }
+    }
     notification.error({
       message: '错误',
       description: error.response.status
@@ -112,42 +128,6 @@ request.interceptors.request.use(config => {
 }, errorHandler)
 
 request.interceptors.response.use((response) => {
-//   const data = response.data
-//   const config = response.config
-//   // token 过期
-//   console.log('##############')
-//   console.log(data)
-//   console.log('##############*****')
-//   if (data.code === 'token_not_valid') {
-//     if (!isRefreshing) {
-//       isRefreshing = true
-//       return store.dispatch('refreshToken').then(response => {
-//         const { token } = store.ACCESS_TOKEN
-//         request.defaults.headers['Authorization'] = 'Bearer ' + token
-//         config.headers['Authorization'] = 'Bearer ' + token
-//         config.baseURL = ''
-//         // 已经刷新了token，将所有队列中的请求进行重试
-//         requests.forEach(cb => cb(token))
-//         requests = []
-//         return request(config)
-//       }).catch(response => {
-//         console.error('refreshtoken error')
-//         window.location.href = '/'
-//       }).finally(() => {
-//         isRefreshing = false
-//       })
-//     } else {
-//       // 正在刷新token，将返回一个未执行resolve的promise
-//       return new Promise((resolve) => {
-//         // 将resolve放进队列，用一个函数形式来保存，等token刷新后直接执行
-//         requests.push((token) => {
-//           config.baseURL = ''
-//           config.headers['Authorization'] = 'Bearer ' + token
-//           resolve(request(config))
-//         })
-//       })
-//     }
-//   }
   return response
 }, errorHandler)
 

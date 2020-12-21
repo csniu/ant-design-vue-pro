@@ -10,7 +10,8 @@ const userApi = {
   // SendSms: '/account/sms',
   // SendSmsErr: '/account/sms_err',
   // get my info
-  UserInfo: '/consumer/userinfo/'
+  UserInfo: '/consumer/userinfo/',
+  changePassword: '/consumer/password/change//'
   // UserMenu: '/user/nav'
 }
 
@@ -88,3 +89,11 @@ export function getInfo () {
 //     data: parameter
 //   })
 // }
+
+export function changePassWD (parameter) {
+  return request({
+    url: userApi.changePassword,
+    method: 'post',
+    data: parameter
+  })
+}

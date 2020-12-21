@@ -119,6 +119,8 @@ const user = {
       //     storage.remove(ACCESS_TOKEN)
       //   })
       // })
+      commit('SET_TOKEN', '')
+      commit('SET_ROLES', [])
       storage.remove(ACCESS_TOKEN)
     }
 
