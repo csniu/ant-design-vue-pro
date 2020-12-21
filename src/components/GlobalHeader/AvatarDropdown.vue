@@ -14,7 +14,11 @@
           <a-icon type="setting" />
           个人设置
         </a-menu-item> -->
-        <!-- <a-menu-divider v-if="menu" /> -->
+        <a-menu-item v-if="menu" key="chang-password" @click="handleToChangePassword">
+          <a-icon type="setting" />
+          修改密码
+        </a-menu-item>
+        <a-menu-divider v-if="menu" />
         <a-menu-item key="logout" @click="handleLogout">
           <a-icon type="logout" />
           退出登录
@@ -49,10 +53,14 @@ export default {
     handleToSettings () {
       this.$router.push({ path: '/account/settings' })
     },
+    handleToChangePassword () {
+      this.$router.push({ path: '/password/change-password' })
+    },
     handleLogout (e) {
       Modal.confirm({
         title: this.$t('layouts.usermenu.dialog.title'),
         content: this.$t('layouts.usermenu.dialog.content'),
+        // content: 'jjjjjjj',
         onOk: () => {
           // return new Promise((resolve, reject) => {
           //   setTimeout(Math.random() > 0.5 ? resolve : reject, 1500)

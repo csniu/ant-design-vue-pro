@@ -28,7 +28,7 @@
       <s-table
         ref="table"
         size="default"
-        rowKey="analysisId"
+        rowKey="id"
         :pageSize="20"
         :columns="columns"
         :data="loadData"
@@ -43,7 +43,7 @@
         <span slot="time" slot-scope="text">
           {{ text | formatDate }}
         </span>
-        <span slot="status" slot-scope="text" style="white-space: pre-line">
+        <span slot="status" slot-scope="text" style="white-space: pre-line;">
           <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" />
         </span>
 
@@ -171,7 +171,7 @@ export default {
   filters: {
     statusFilter (type) {
       if (type === null) {
-        type = ''
+        type = '待更新'
       }
       if (type === 'Success') {
         return '已完成'
@@ -188,7 +188,7 @@ export default {
     },
     formatDate (time) {
         var date = new Date(time)
-        return formatDate(date, 'yyyy-MM-dd')
+        return formatDate(date, 'MM/dd hh:mm')
       }
   },
   computed: {
@@ -202,7 +202,7 @@ export default {
   methods: {
     handleAddQueue (record) {
       this.confirmLoading = true
-      saveAnalysis({ 'id': record.analysisId, 'order': -new Date() / 1000 }).then(res => {
+      saveAnalysis({ 'id': record.id, 'order': -new Date() / 1000 }).then(res => {
         this.confirmLoading = false
         this.$refs.table.refresh()
         this.$message.info('添加成功')
@@ -210,7 +210,7 @@ export default {
     },
     handledeleteQueue (record) {
       this.confirmLoading = true
-      saveAnalysis({ 'id': record.analysisId, 'order': null }).then(res => {
+      saveAnalysis({ 'id': record.id, 'order': null }).then(res => {
         this.confirmLoading = false
         this.$refs.table.refresh()
         this.$message.info('取消成功')
@@ -218,7 +218,7 @@ export default {
     },
     handleReclock (record) {
       this.confirmLoading = true
-      saveAnalysis({ 'id': record.analysisId, 'cycleNumber': 1 }).then(res => {
+      saveAnalysis({ 'id': record.id, 'cycleNumber': 1 }).then(res => {
         this.confirmLoading = false
         this.$refs.table.refresh()
         this.$message.info('归零成功')

@@ -12,7 +12,9 @@ const user = {
     welcome: '',
     avatar: '',
     roles: [],
-    info: {}
+    info: {},
+    isAdmin: false,
+    isSuperuser: false
   },
 
   mutations: {
@@ -34,6 +36,12 @@ const user = {
     },
     SET_INFO: (state, info) => {
       state.info = info
+    },
+    SET_ADMIN: (state, admin) => {
+      state.isAdmin = admin
+    },
+    SET_SUPERUSER: (state, superuser) => {
+      state.isSuperuser = superuser
     }
   },
 
@@ -73,10 +81,21 @@ const user = {
           */
 
           // 简化了前端的权限管理，没有 active
+          var roles = result.roles.map(role => { return role.name })
+          console.log('role', roles)
+          if (roles.length === 0) {
+            roles.push('防止为空')
+          }
+
           if (result.roles) {
-            const roles = result.roles.map(role => { return role.name })
             commit('SET_ROLES', roles)
             commit('SET_INFO', result)
+            if (result.is_superuser) {
+              commit('SET_SUPERUSER', true)
+            }
+            if (result.is_admin) {
+              commit('SET_ADMIN', true)
+              }
           } else {
             reject(new Error('getInfo: roles must be a non-null array !'))
           }
@@ -85,7 +104,7 @@ const user = {
           // commit('SET_AVATAR', result.avatar)
 
           resolve(response)
-        }).catch(error => {
+          }).catch(error => {
           reject(error)
         })
       })
@@ -121,6 +140,8 @@ const user = {
       // })
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
+      commit('SET_SUPERUSER', false)
+      commit('SET_ADMIN', false)
       storage.remove(ACCESS_TOKEN)
     }
 

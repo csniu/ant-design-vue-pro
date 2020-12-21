@@ -9,7 +9,7 @@
           </a>
         </div>
         <div class="desc">
-          You can you up, no can no BB
+          永远年轻，永远热泪盈眶
         </div>
       </div>
 

@@ -44,7 +44,8 @@ import {
   Statistic,
   Descriptions,
   message,
-  notification
+  notification,
+  Transfer
 } from 'ant-design-vue'
 import Viser from 'viser-vue'
 
@@ -60,6 +61,7 @@ Vue.use(ConfigProvider)
 Vue.use(Layout)
 Vue.use(Input)
 Vue.use(InputNumber)
+Vue.use(Transfer)
 Vue.use(Button)
 Vue.use(Switch)
 Vue.use(Radio)

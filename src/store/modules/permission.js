@@ -1,4 +1,5 @@
 import { asyncRouterMap, constantRouterMap } from '@/config/router.config'
+import user from './user'
 
 /**
  * 过滤账户是否拥有某一个权限，并将菜单从加载列表移除
@@ -11,6 +12,12 @@ import { asyncRouterMap, constantRouterMap } from '@/config/router.config'
 function hasPermission (roles, route) {
   if (route.meta && route.meta.permission) {
     let flag = false
+
+    // 超级用户用户
+    if (user.state.isSuperuser) {
+      return true
+    }
+
     for (let i = 0, len = roles.length; i < len; i++) {
       flag = route.meta.permission.includes(roles[i])
       if (flag) {

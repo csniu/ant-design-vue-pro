@@ -10,11 +10,11 @@
                 <a-input v-model="queryParam.sampleId" placeholder=""/>
               </a-form-item>
             </a-col>
-            <a-col :md="8" :sm="24">
+            <!-- <a-col :md="8" :sm="24">
               <a-form-item label="姓名">
-                <a-input v-model="queryParam.patientName" placeholder=""/>
+                <a-input v-model="queryParam.name" placeholder=""/>
               </a-form-item>
-            </a-col>
+            </a-col> -->
             <a-col :md="!advanced && 8 || 24" :sm="24">
               <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
                 <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
@@ -140,10 +140,6 @@ const columns = [
     dataIndex: 'sampleId'
   },
   {
-    title: '姓名',
-    dataIndex: 'patientName'
-  },
-  {
     title: '保存地址',
     dataIndex: 'savePath',
     scopedSlots: { customRender: 'savePath' }
@@ -232,13 +228,6 @@ export default {
             var records = []
             for (var i = 0; i < res.data.results.length; i++) {
               var item = res.data.results[i]
-              // 添加样本信息
-              if (item.sample === undefined) {
-                 item.sample = { 'sampleId': '', 'name': '' }
-              }
-              item.sampleId = item.sample.sampleId
-              item.patientName = item.sample.name
-
               // R1 R2
               for (var ii = 0; ii < item.files.length; ii++) {
                 var fileInfo = item.files[ii]
@@ -272,7 +261,7 @@ export default {
     },
     formatDate (time) {
         var date = new Date(time)
-        return formatDate(date, 'yyyy-MM-dd')
+        return formatDate(date, 'MM/dd hh:mm')
       }
   },
   computed: {

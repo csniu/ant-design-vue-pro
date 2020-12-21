@@ -21,15 +21,6 @@
 
     <div class="table-operator">
       <a-button type="primary" icon="plus" @click="handleAdd">新建</a-button>
-      <!-- <a-dropdown v-action:edit v-if="selectedRowKeys.length > 0">
-        <a-menu slot="overlay" @click="handleBatch">
-          <a-menu-item key="1"><a-icon type="delete" />删除</a-menu-item>
-          <a-menu-item key="2"><a-icon type="to-top" />置顶</a-menu-item>
-        </a-menu>
-        <a-button style="margin-left: 8px">
-          批量操作 <a-icon type="down" />
-        </a-button>
-      </a-dropdown> -->
     </div>
 
     <s-table
@@ -39,8 +30,11 @@
       :data="loadData"
       row-key="id"
     >
-      <span slot="group" slot-scope="text">
-        {{ text.name }}
+      <span slot="users" slot-scope="text" style="white-space: pre-line;">
+        {{ text | joinUsers }}
+      </span>
+      <span slot="permissions" slot-scope="text" style="white-space: pre-line;">
+        {{ text | joinPermissions }}
       </span>
       <span slot="action" slot-scope="text, record">
         <template>
@@ -78,25 +72,31 @@
         <a-form-item
           :labelCol="labelCol"
           :wrapperCol="wrapperCol"
-          label="角色名"
+          label="用户组名"
           hasFeedback
         >
           <a-input
-            placeholder="英文，后端使用"
+            placeholder="组名"
             v-decorator="['name', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]"
           />
         </a-form-item>
 
         <a-form-item
+          class="role-group"
           :labelCol="labelCol"
           :wrapperCol="wrapperCol"
-          label="描述"
-          hasFeedback
+          label="权限"
         >
-          <a-input
-            placeholder="中文，前端展示使用"
-            v-decorator="['description', {rules: [{ required: true, message: '请输入邮箱地址' }]}]"
-          />
+          <div>
+            <a-transfer
+              :data-source="permissions"
+              show-search
+              :titles="['可选', '已有']"
+              :render="item => item.name"
+              :list-style="{width: '200px', height: '250px',}"
+              v-decorator="['group_permissions', {valuePropName: 'targetKeys', initialValue: mdl.targetKeys }]"
+            />
+          </div>
         </a-form-item>
 
       </a-form>
@@ -107,7 +107,7 @@
 
 <script>
 import { STable } from '@/components'
-import { getRoles, saveRole, deleteRole } from '@/api/manage'
+import { getGroups, saveGroup, deleteGroup, getPermissions } from '@/api/manage'
 import pick from 'lodash.pick'
 
 export default {
@@ -116,15 +116,14 @@ export default {
     STable
   },
   data () {
-    this.fields = ['id', 'name', 'description']
+    this.fields = ['id', 'name', 'group_permissions']
     return {
-      description: '列表使用场景：后台管理中的权限管理以及角色管理，可用于基于 RBAC 设计的角色权限控制，颗粒度细到每一个操作类型。',
-
       visible: false,
       confirmLoading: false,
 
       form: this.$form.createForm(this),
       mdl: {},
+      permissions: [],
       labelCol: {
         xs: { span: 24 },
         sm: { span: 5 }
@@ -145,17 +144,18 @@ export default {
           dataIndex: 'id'
         },
         {
-          title: '角色名称',
+          title: '组名',
           dataIndex: 'name'
         },
         {
-          title: '描述',
-          dataIndex: 'description'
+          title: '用户',
+          dataIndex: 'users',
+          scopedSlots: { customRender: 'users' }
         },
         {
-          title: '关联组',
-          dataIndex: 'group',
-          scopedSlots: { customRender: 'group' }
+          title: '权限',
+          dataIndex: 'permissions',
+          scopedSlots: { customRender: 'permissions' }
         },
         {
           title: '操作',
@@ -167,9 +167,9 @@ export default {
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
         const requestParameters = Object.assign({}, parameter, this.queryParam)
-        return getRoles(requestParameters)
+        return getGroups(requestParameters)
           .then(res => {
-            console.log('getRoles', res)
+            console.log('getGroups', res)
             return res.data
           })
       },
@@ -178,14 +178,43 @@ export default {
       selectedRows: []
     }
   },
+  filters: {
+    joinUsers (users) {
+      return users.map(u => u.username).join(',\n')
+    },
+    joinPermissions (permissions) {
+      return permissions.map(u => u.name).join(',\n')
+    }
+  },
+  created () {
+    getPermissions({ })
+      .then(res => {
+        console.log('getPermissions', res)
+        for (let i = 0, len = res.data.length; i < len; i++) {
+          var p = res.data[i]
+          p.key = p.id.toString()
+          p.title = p.name
+          p.disabled = false
+          // p.description = p.name
+          this.permissions.push(p)
+        }
+        console.log('permissions', this.permissions)
+      })
+      .catch((res) => {
+        console.log('getPermissions error', res)
+      })
+  },
   methods: {
     handleAdd () {
       this.visible = true
-      this.mdl = { 'id': 0 }
+      this.mdl = { 'id': 0, 'targetKeys': [] }
     },
     handleEdit (record) {
-      this.mdl = Object.assign({}, record)
+      this.mdl = { ...record }
       this.visible = true
+      console.log('@@@@', this.mdl)
+      this.mdl.targetKeys = this.mdl.permissions.map(p => p.id.toString())
+      console.log('handleEdit', this.mdl)
 
       this.$nextTick(() => {
         this.fields.forEach(v => this.form.getFieldDecorator(v))
@@ -197,10 +226,15 @@ export default {
       this.confirmLoading = true
       this.form.validateFields((errors, values) => {
         if (!errors) {
+          var optionPrmissons = Object.values({ ...values.group_permissions })
+          values.permissions = this.permissions.filter(p => optionPrmissons.includes(p.key))
+          console.log('group_permissions', values.permissions)
           console.log('values', values)
+
           if (values.id > 0) {
             // 修改
-            saveRole(values).then(res => {
+            saveGroup(values).then(res => {
+              console.log(res)
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
@@ -212,7 +246,8 @@ export default {
             })
           } else {
             // 新增
-            saveRole(values).then(res => {
+            saveGroup(values).then(res => {
+              console.log(res)
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
@@ -222,7 +257,7 @@ export default {
 
               this.$message.info('创建成功')
             }).catch(res => {
-              console.log('role create error', res.response.data)
+              console.log('group create error', res.response.data)
               setTimeout(() => { this.confirmLoading = false }, 5000)
             })
           }
@@ -238,7 +273,7 @@ export default {
     },
     handleDelete (record) {
       this.confirmLoading = true
-      deleteRole(record).then(res => {
+      deleteGroup(record).then(res => {
         this.confirmLoading = false
         this.$refs.table.refresh()
         this.$message.info('删除成功')

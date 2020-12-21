@@ -339,7 +339,7 @@ export const asyncRouterMap = [
     component: BasicLayout,
     meta: { title: 'menu.home' },
     // redirect: '/sample',
-    redirect: '/sample/download/',
+    redirect: '/sample/',
     children: [
       // {
       //   path: '/sample',
@@ -358,18 +358,86 @@ export const asyncRouterMap = [
       //   ]
       // }
       {
-        path: '/sample/download/:pageNo([1-9]\\d*)?',
-        name: 'TableListWrapper',
+        path: '/sample/:pageNo([1-9]\\d*)?',
+        name: 'sample',
         hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
-        component: () => import('@/views/list/TableList'),
-        meta: { title: '数据下载', keepAlive: true, icon: 'download', permission: [ 'default', 'superuser' ] }
+        component: () => import('@/views/list/SampleTableList'),
+        meta: { title: '样本信息', keepAlive: true, icon: 'idcard', permission: [ 'sample' ] }
       },
       {
-        path: '/sample/analysis/:pageNo([1-9]\\d*)?',
+        path: '/download/:pageNo([1-9]\\d*)?',
+        name: 'download',
+        hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+        component: () => import('@/views/list/TableList'),
+        meta: { title: '数据下载', keepAlive: true, icon: 'download', permission: [ 'download' ] }
+      },
+      {
+        path: '/analysis/:pageNo([1-9]\\d*)?',
         name: 'analysis',
         hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
         component: () => import('@/views/list/AnalysisTableList'),
-        meta: { title: '报告状态', keepAlive: true, icon: 'radar-chart', permission: [ 'default', 'superuser' ] }
+        meta: { title: '分析状态', keepAlive: true, icon: 'radar-chart', permission: [ 'analysis' ] }
+      },
+      // 用户管理
+      {
+        path: '/reort',
+        name: 'report',
+        component: PageView,
+        meta: { title: '报告', icon: 'user', permission: [ 'report' ] },
+        redirect: '/report/backup/',
+        children: [
+          {
+            path: '/report/backup/:pageNo([1-9]\\d*)?',
+            name: 'backup',
+            hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+            component: () => import('@/views/list/ReportTableList'),
+            meta: { title: '报告备份', keepAlive: true, icon: 'read', permission: [ 'backup' ] }
+          }
+        ]
+      },
+      {
+        path: '/manage',
+        name: 'userMange',
+        component: PageView,
+        meta: { title: '用户管理', icon: 'user', permission: [ 'userMange' ] },
+        redirect: '/manage/user-list',
+        children: [
+          {
+            path: '/manage/user-list',
+            name: 'userList',
+            component: () => import('@/views/other/UserList'),
+            meta: { title: '用户', keepAlive: true, icon: 'user', permission: [ 'userList' ] }
+          },
+          {
+            path: '/manage/role-list',
+            name: 'roleList',
+            component: () => import('@/views/other/RoleList'),
+            meta: { title: '角色', keepAlive: true, icon: 'tags', permission: [ 'roleList' ] }
+          },
+          {
+            path: '/manage/group-list',
+            name: 'groupList',
+            component: () => import('@/views/other/GroupList'),
+            meta: { title: '用户组', keepAlive: true, icon: 'team', permission: [ 'groupList' ] }
+          }
+        ]
+      },
+      {
+        path: '/password',
+        name: 'userMange',
+        component: PageView,
+        hidden: true,
+        meta: { title: '用户管理', icon: 'user' },
+        redirect: '/password/change-password',
+        children: [
+          {
+            path: 'change-password',
+            name: 'changePassword',
+            // hidden: true,
+            component: () => import('@/views/user/ChangePassword'),
+            meta: { title: '修改密码' }
+          }
+        ]
       }
     ]
   },
@@ -394,16 +462,16 @@ export const constantRouterMap = [
         name: 'login',
         component: () => import(/* webpackChunkName: "user" */ '@/views/user/Login')
       },
-      {
-        path: 'register',
-        name: 'register',
-        component: () => import(/* webpackChunkName: "user" */ '@/views/user/Register')
-      },
-      {
-        path: 'register-result',
-        name: 'registerResult',
-        component: () => import(/* webpackChunkName: "user" */ '@/views/user/RegisterResult')
-      },
+      // {
+      //   path: 'register',
+      //   name: 'register',
+      //   component: () => import(/* webpackChunkName: "user" */ '@/views/user/Register')
+      // },
+      // {
+      //   path: 'register-result',
+      //   name: 'registerResult',
+      //   component: () => import(/* webpackChunkName: "user" */ '@/views/user/RegisterResult')
+      // },
       {
         path: 'recover',
         name: 'recover',

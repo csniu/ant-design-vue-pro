@@ -18,7 +18,7 @@
             <a-input
               size="large"
               type="text"
-              placeholder="账户: worker"
+              placeholder="账户: "
               v-decorator="[
                 'username',
                 {rules: [{ required: true, message: '请输入帐户名或邮箱地址' }, { validator: handleUsernameOrEmail }], validateTrigger: 'change'}
@@ -31,7 +31,7 @@
           <a-form-item>
             <a-input-password
               size="large"
-              placeholder="密码: huisuan@2020"
+              placeholder="密码: "
               v-decorator="[
                 'password',
                 {rules: [{ required: true, message: '请输入密码' }], validateTrigger: 'blur'}
@@ -71,12 +71,12 @@
 
       <a-form-item>
         <a-checkbox v-decorator="['rememberMe', { valuePropName: 'checked' }]">自动登录</a-checkbox>
-        <router-link
+        <!-- <router-link
           :to="{ name: 'recover', params: { user: 'aaa'} }"
           class="forge-password"
           style="float: right;"
         >忘记密码</router-link>
-        <router-link class="register" :to="{ name: 'register' } " style="float: right;margin-right: 20px;">注册账户</router-link>
+        <router-link class="register" :to="{ name: 'register' } " style="float: right;margin-right: 20px;">注册账户</router-link> -->
       </a-form-item>
 
       <a-form-item style="margin-top:24px">
