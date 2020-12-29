@@ -1,0 +1,1 @@
+docker run -it --rm --name csniu-ant -v "$PWD"/ant-design-vue-pro:/usr/src/ant-design-vue-pro -w /usr/src/ant-design-vue-pro -e "HOST=0.0.0.0" -p 9355:8000 node yarn run serve

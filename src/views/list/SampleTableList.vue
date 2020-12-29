@@ -87,7 +87,7 @@
           <a-form-item label="样本编号">
             <a-input v-decorator="['sample_id', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]" />
           </a-form-item>
-          <a-form-item label="其他">
+          <a-form-item label="其他" v-if="!sync" >
             <a-textarea v-decorator="['comment', {rules: [{ whitespace:true }]}]" />
           </a-form-item>
         </div>
@@ -171,6 +171,7 @@ export default {
     this.fields = fields
     this.primaryKey = 'id'
     return {
+      sysnc: false,
       // create model
       visible: false,
       confirmLoading: false,
@@ -185,6 +186,7 @@ export default {
         console.log('loadData request parameters:', requestParameters)
         return getSamples(requestParameters)
           .then(res => {
+            console.log(res)
             return res.data
           })
       },
@@ -194,6 +196,7 @@ export default {
   },
   filters: {
     formatDate (time) {
+        console.log(time)
         var date = new Date(time)
         return formatDate(date, 'MM/dd hh:mm')
       }
@@ -210,11 +213,13 @@ export default {
     handleEdit (record) {
       console.log(record)
       this.visible = true
+      this.sync = false
       this.mdl = { ...record }
     },
     handleAdd () {
       this.mdl = { 'id': 0 }
       this.visible = true
+      this.sync = true
     },
     handleOk () {
       const form = this.$refs.createModal.form

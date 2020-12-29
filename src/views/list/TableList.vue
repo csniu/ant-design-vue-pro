@@ -10,11 +10,6 @@
                 <a-input v-model="queryParam.sampleId" placeholder=""/>
               </a-form-item>
             </a-col>
-            <!-- <a-col :md="8" :sm="24">
-              <a-form-item label="姓名">
-                <a-input v-model="queryParam.name" placeholder=""/>
-              </a-form-item>
-            </a-col> -->
             <a-col :md="!advanced && 8 || 24" :sm="24">
               <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
                 <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
@@ -80,17 +75,26 @@
         </span>
       </s-table>
 
-      <create-form
-        ref="createModal"
-        title="新建任务"
-        :primaryKey="primaryKey"
-        :visible="visible"
-        :loading="confirmLoading"
+      <a-modal
+        title="操作"
+        style="top: 20px;"
+        :width="800"
         :model="mdl"
-        :fields="fields"
+        v-model="visible"
+        :confirmLoading="confirmLoading"
+        @ok="handleOk"
         @cancel="handleCancel"
-        @ok="handleOk">
-        <div slot="fields">
+      >
+        <a-form class="role-form" :form="form" v-bind="formLayout">
+          <a-form-item
+            label="ID"
+          >
+            <a-input
+              placeholder="ID"
+              disabled="disabled"
+              v-decorator="['id']"
+            />
+          </a-form-item>
           <a-form-item label="任务状态">
             <a-input disabled v-decorator="['status', {rules: [{ required: false, message: '不能为空！', whitespace:true }]}]" />
           </a-form-item>
@@ -112,22 +116,25 @@
           <a-form-item label="R2-MD5">
             <a-input disabled v-decorator="['r2Md5', {rules: [{ required: false, message: '不能为空！', whitespace:true }]}]" />
           </a-form-item>
-        </div>
-      </create-form>
-      <!-- <step-by-step-modal ref="modal" @ok="handleOk"/> -->
+          <a-form-item label="对照">
+            <a-switch v-decorator="['contrast', {valuePropName: 'checked', initialValue: mdl.contrast }]"/>
+          </a-form-item>
+          <a-form-item label="合并">
+            <a-switch v-decorator="['merge', {valuePropName: 'checked', initialValue: mdl.contrast }]"/>
+          </a-form-item>
+        </a-form>
+      </a-modal>
 
     </a-card>
   </page-header-wrapper>
 </template>
 
 <script>
+import pick from 'lodash.pick'
 import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
-// import { getRoleList, getServiceList } from '@/api/manage'
 import { getDownloadTask, saveTask, deleteTask } from '@/api/manage'
 
-import StepByStepModal from './modules/StepByStepModal'
-import CreateForm from './modules/CreateForm'
 import { formatDate } from '../../utils/util.js'
 
 const columns = [
@@ -196,21 +203,30 @@ const statusMap = {
   }
 }
 
-const fields = ['status', 'savePath', 'resultPath', 'r1File', 'r1Md5', 'r2File', 'r2Md5']
+const fields = ['id', 'status', 'savePath', 'resultPath', 'r1File', 'r1Md5', 'r2File', 'r2Md5', 'contrast', 'merge']
 
 export default {
   name: 'TableList',
   components: {
     STable,
-    Ellipsis,
-    CreateForm,
-    StepByStepModal
+    Ellipsis
   },
   data () {
     this.columns = columns
     this.fields = fields
     this.primaryKey = 'id'
+    this.formLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 7 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 13 }
+      }
+    }
     return {
+      form: this.$form.createForm(this),
       // create model
       visible: false,
       confirmLoading: false,
@@ -277,11 +293,16 @@ export default {
       console.log(record)
       this.visible = true
       this.mdl = { ...record }
+
+      this.$nextTick(() => {
+        this.fields.forEach(v => this.form.getFieldDecorator(v))
+        this.form.setFieldsValue(pick(record, this.fields))
+      })
     },
-    handleOk () {
-      const form = this.$refs.createModal.form
+    handleOk (e) {
+      e.preventDefault()
       this.confirmLoading = true
-      form.validateFields((errors, values) => {
+      this.form.validateFields((errors, values) => {
         if (!errors) {
           console.log('values', values)
           if (values.id > 0) {
@@ -290,7 +311,7 @@ export default {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
-              form.resetFields()
+              this.form.resetFields()
               // 刷新表格
               this.$refs.table.refresh()
 
@@ -302,7 +323,7 @@ export default {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
-              form.resetFields()
+              this.form.resetFields()
               // 刷新表格
               this.$refs.table.refresh()
 
@@ -317,8 +338,7 @@ export default {
     handleCancel () {
       this.visible = false
 
-      const form = this.$refs.createModal.form
-      form.resetFields() // 清理表单数据（可不做）
+      this.form.resetFields() // 清理表单数据（可不做）
     },
     handleDelete (record) {
       this.confirmLoading = true
@@ -390,3 +410,12 @@ export default {
   }
 }
 </script>
+<style lang="less" scoped>
+.role-form {
+  /deep/ .role-group {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+
+</style>

@@ -7,7 +7,7 @@
         <a-row :gutter="48">
           <a-col :md="8" :sm="24">
             <a-form-item label="编号">
-              <a-input v-model="queryParam.sample_id" placeholder=""/>
+              <a-input v-model="queryParam.sampleId" placeholder=""/>
             </a-form-item>
           </a-col>
           <a-col :md="!advanced && 8 || 24" :sm="24">
@@ -40,12 +40,12 @@
       </span>
       <span slot="word" slot-scope="text, record">
         <a @click="handleDownloadFile(record, 'word')">
-          <ellipsis :length="30" tooltip>{{ text | getFilename }}</ellipsis>
+          <ellipsis :length="50" tooltip>{{ text | getFilename }}</ellipsis>
         </a>
       </span>
       <span slot="pdf" slot-scope="text, record">
         <a @click="handleDownloadFile(record, 'pdf')">
-          <ellipsis :length="30" tooltip>{{ text | getFilename }}</ellipsis>
+          <ellipsis :length="50" tooltip>{{ text | getFilename }}</ellipsis>
         </a>
       </span>
     </s-table>
@@ -58,7 +58,7 @@
 import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
 // import { getRoleList, getServiceList } from '@/api/manage'
-import { getReport, downloadFile } from '@/api/manage'
+import { getReportRecorde, downloadFile } from '@/api/manage'
 
 import StepByStepModal from './modules/StepByStepModal'
 import CreateForm from './modules/CreateForm'
@@ -82,11 +82,6 @@ const columns = [
     title: 'PDF',
     dataIndex: 'reportPdfPath',
     scopedSlots: { customRender: 'pdf' }
-  },
-  {
-    title: '修改时间',
-    dataIndex: 'updataDate',
-    scopedSlots: { customRender: 'time' }
   }
 ]
 
@@ -114,8 +109,9 @@ export default {
       loadData: parameter => {
         const requestParameters = Object.assign({}, parameter, this.queryParam)
         console.log('loadData request parameters:', requestParameters)
-        return getReport(requestParameters)
+        return getReportRecorde(requestParameters)
           .then(res => {
+            console.log(res)
             return res.data
           })
       },
@@ -125,7 +121,9 @@ export default {
   },
   filters: {
     formatDate (time) {
+        console.log(time)
         var date = new Date(time)
+        // console.log(date)
         return formatDate(date, 'MM/dd hh:mm')
       },
     getFilename (path) {
@@ -143,14 +141,12 @@ export default {
   methods: {
     handleDownloadFile (record, ftype) {
       this.confirmLoading = true
-      var filename = ftype === 'word' ? record.reportWordPath : record.reportPdfPath
-      filename = filename.toString().split(/\\|\//).pop()
-      downloadFile({
-        'type': 'report',
-        'filetype': ftype,
-        'id': record.id
-      },
-      filename).then(res => {
+      const filePath = ftype === 'word' ? record.reportWordPath : record.reportPdfPath
+      if (filePath === 'NA') {
+        return
+      }
+      const filename = filePath.toString().split(/\\|\//).pop()
+      downloadFile({ 'abspath': filePath }, filename).then(res => {
         this.confirmLoading = false
         this.$message.info('下载成功')
       }).catch(res => {

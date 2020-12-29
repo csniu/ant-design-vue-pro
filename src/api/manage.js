@@ -5,12 +5,20 @@ const api = {
   bdmsSample: '/sample/bdms/',
   downloadTask: '/download/tasks/',
   analysis: '/recorder/analysis/',
-  report: '/recorder/report/',
-  file: '/recorder/file/',
+  reportRecorde: '/recorder/report/',
+  file: '/file/',
   user: '/consumer/user/',
   group: '/consumer/group/',
   role: '/consumer/role/',
-  permission: '/consumer/permission/'
+  permission: '/consumer/permission/',
+  genelist: '/report/genelist/',
+  genelistDownload: '/report/genelist-download/',
+  reportVersion: '/report/reportVersion/',
+  distributor: '/report/distributor/',
+  template: '/report/template/',
+  staticResource: '/report/staticResource/',
+  report: '/report/'
+
 }
 
 export default api
@@ -99,20 +107,20 @@ export function syncSample (sampleid) {
   })
 }
 
-export function getReport (parameter) {
+export function getReportRecorde (parameter) {
   return request({
-    url: api.report,
+    url: api.reportRecorde,
     method: 'get',
     params: parameter
   })
 }
 
 // 报告和vcf文件下载
-export function downloadFile (parameter, filename) {
+export function downloadFile (data, filename) {
   return request({
     url: api.file,
-    method: 'get',
-    params: parameter,
+    method: 'post',
+    data: data,
     responseType: 'blob'
   }).then(res => {
     var a = document.createElement('a')
@@ -199,5 +207,78 @@ export function getPermissions (parameter) {
     url: api.permission,
     method: 'get',
     params: parameter
+  })
+}
+
+export function getGenelist (parameter) {
+  return request({
+    url: api.genelist,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function genelistDownload (parameter, filename) {
+  return request({
+    url: api.genelistDownload,
+    method: 'get',
+    params: parameter,
+    responseType: 'blob'
+  }).then(res => {
+    const bom = new Uint8Array([0xEF, 0xBB, 0xBF])
+    var a = document.createElement('a')
+    // type 常见值 https://www.runoob.com/http/http-content-type.html
+    // 添加 bom 信息，防止 utf_8_sig 编码中文乱码。https://www.coder.work/article/5771171
+    var blob = new Blob([bom, res.data], { type: 'application/octet-stream' })
+    var url = URL.createObjectURL(blob)
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+  })
+}
+
+export function saveGene (record) {
+  return request({
+    url: record.id > 0 ? api.genelist + record.id + '/' : api.genelist,
+    method: record.id > 0 ? 'patch' : 'post',
+    data: record
+  })
+}
+
+export function deleteGene (record) {
+  return request({
+    url: api.genelist + record.id + '/',
+    method: 'delete',
+    data: record
+  })
+}
+
+export function getStaticResource (parameter) {
+  return request({
+    url: api.staticResource,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function deleteStaticResource (record) {
+  return request({
+    url: api.staticResource + record.id + '/',
+    method: 'delete',
+    data: record
+  })
+}
+
+export function saveStaticResource (record, id = 0) {
+  return request({
+    url: id > 0 ? api.staticResource + id + '/' : api.staticResource,
+    method: id > 0 ? 'patch' : 'post',
+    data: record,
+    contentType: false,
+    processData: false,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
   })
 }

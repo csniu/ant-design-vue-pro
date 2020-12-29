@@ -10,7 +10,7 @@ const request = axios.create({
   // API 请求的默认前缀
   // https://cli.vuejs.org/zh/guide/mode-and-env.html#%E6%A8%A1%E5%BC%8F
   baseURL: process.env.VUE_APP_API_BASE_URL,
-  timeout: 6000 // 请求超时时间
+  timeout: 15000 // 请求超时时间
 })
 
 // 是否正在刷新的标记
@@ -25,7 +25,6 @@ const errorHandler = (error) => {
     const errorCode = data.code
     const status = error.response.status
     const config = error.response.config
-    console.log('请求错误')
     console.log('请求数据：', config)
     console.log('响应数据：', data)
     // 从 localstorage 获取 token
