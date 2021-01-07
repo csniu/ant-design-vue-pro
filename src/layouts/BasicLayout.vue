@@ -1,21 +1,43 @@
 <template>
   <pro-layout
-    :title="title"
     :menus="menus"
     :collapsed="collapsed"
     :mediaQuery="query"
     :isMobile="isMobile"
     :handleMediaQuery="handleMediaQuery"
     :handleCollapse="handleCollapse"
-    :logo="logoRender"
     :i18nRender="i18nRender"
     v-bind="settings"
   >
-    <!-- 开发环境下的颜色和布局按钮 -->
-    <!-- <setting-drawer :settings="settings" @change="handleSettingChange" /> -->
+    <!-- 1.0.0+ 版本 pro-layout 提供 API，
+          我们推荐使用这种方式进行 LOGO 和 title 自定义
+    -->
+    <template v-slot:menuHeaderRender>
+      <div>
+        <logo-svg />
+        <h1>{{ title }}</h1>
+      </div>
+    </template>
+    <!-- 1.0.0+ 版本 pro-layout 提供 API,
+          增加 Header 左侧内容区自定义
+    -->
+    <template v-slot:headerContentRender>
+      <div>
+        <a-tooltip title="刷新页面">
+          <a-icon type="reload" style="font-size: 18px;cursor: pointer;" @click="() => { $message.info('只是一个DEMO') }" />
+        </a-tooltip>
+      </div>
+    </template>
+
+    <setting-drawer :settings="settings" @change="handleSettingChange">
+      <div style="margin: 12px 0;">
+        This is SettingDrawer custom footer content.
+      </div>
+    </setting-drawer>
     <template v-slot:rightContentRender>
       <right-content :top-menu="settings.layout === 'topmenu'" :is-mobile="isMobile" :theme="settings.theme" />
     </template>
+    <!-- custom footer / 自定义Footer -->
     <template v-slot:footerRender>
       <global-footer />
     </template>
@@ -27,20 +49,19 @@
 import { SettingDrawer, updateTheme } from '@ant-design-vue/pro-layout'
 import { i18nRender } from '@/locales'
 import { mapState } from 'vuex'
-import { SIDEBAR_TYPE, TOGGLE_MOBILE_TYPE } from '@/store/mutation-types'
-
+import { CONTENT_WIDTH_TYPE, SIDEBAR_TYPE, TOGGLE_MOBILE_TYPE } from '@/store/mutation-types'
 import defaultSettings from '@/config/defaultSettings'
 import RightContent from '@/components/GlobalHeader/RightContent'
 import GlobalFooter from '@/components/GlobalFooter'
 import Ads from '@/components/Other/CarbonAds'
 import LogoSvg from '../assets/logo.svg?inline'
-
 export default {
   name: 'BasicLayout',
   components: {
     SettingDrawer,
     RightContent,
     GlobalFooter,
+    LogoSvg,
     Ads
   },
   data () {
@@ -48,7 +69,6 @@ export default {
       // preview.pro.antdv.com only use.
       isProPreviewSite: process.env.VUE_APP_PREVIEW === 'true' && process.env.NODE_ENV !== 'development',
       // end
-
       // base
       menus: [],
       // 侧栏收起状态
@@ -57,8 +77,8 @@ export default {
       settings: {
         // 布局类型
         layout: defaultSettings.layout, // 'sidemenu', 'topmenu'
-        // 定宽: true / 流式: false
-        contentWidth: defaultSettings.layout === 'sidemenu' ? false : defaultSettings.contentWidth === 'Fixed',
+        // CONTENT_WIDTH_TYPE
+        contentWidth: defaultSettings.layout === 'sidemenu' ? CONTENT_WIDTH_TYPE.Fluid : defaultSettings.contentWidth,
         // 主题 'dark' | 'light'
         theme: defaultSettings.navTheme,
         // 主色调
@@ -66,13 +86,11 @@ export default {
         fixedHeader: defaultSettings.fixedHeader,
         fixSiderbar: defaultSettings.fixSiderbar,
         colorWeak: defaultSettings.colorWeak,
-
         hideHintAlert: false,
         hideCopyButton: false
       },
       // 媒体查询
       query: {},
-
       // 是否手机模式
       isMobile: false
     }
@@ -104,7 +122,6 @@ export default {
         }, 16)
       })
     }
-
     // first update color
     // TIPS: THEME COLOR HANDLER!! PLEASE CHECK THAT!!
     if (process.env.NODE_ENV !== 'production' || process.env.VUE_APP_PREVIEW === 'true') {
@@ -122,7 +139,7 @@ export default {
       if (!this.isMobile && val['screen-xs']) {
         this.isMobile = true
         this.collapsed = false
-        this.settings.contentWidth = false
+        this.settings.contentWidth = CONTENT_WIDTH_TYPE.Fluid
         // this.settings.fixSiderbar = false
       }
     },
@@ -134,20 +151,17 @@ export default {
       type && (this.settings[type] = value)
       switch (type) {
         case 'contentWidth':
-          this.settings[type] = value === 'Fixed'
+          this.settings[type] = value
           break
         case 'layout':
           if (value === 'sidemenu') {
-            this.settings.contentWidth = false
+            this.settings.contentWidth = CONTENT_WIDTH_TYPE.Fluid
           } else {
             this.settings.fixSiderbar = false
-            this.settings.contentWidth = true
+            this.settings.contentWidth = CONTENT_WIDTH_TYPE.Fixed
           }
           break
       }
-    },
-    logoRender () {
-      return <LogoSvg />
     }
   }
 }

@@ -171,7 +171,7 @@ export default {
     this.fields = fields
     this.primaryKey = 'id'
     return {
-      sysnc: false,
+      sync: false,
       // create model
       visible: false,
       confirmLoading: false,
@@ -196,7 +196,6 @@ export default {
   },
   filters: {
     formatDate (time) {
-        console.log(time)
         var date = new Date(time)
         return formatDate(date, 'MM/dd hh:mm')
       }

@@ -12,7 +12,7 @@ const api = {
   role: '/consumer/role/',
   permission: '/consumer/permission/',
   genelist: '/report/genelist/',
-  genelistDownload: '/report/genelist-download/',
+  genelistFile: '/report/genelist-file/',
   reportVersion: '/report/reportVersion/',
   distributor: '/report/distributor/',
   template: '/report/template/',
@@ -220,7 +220,7 @@ export function getGenelist (parameter) {
 
 export function genelistDownload (parameter, filename) {
   return request({
-    url: api.genelistDownload,
+    url: api.genelistFile,
     method: 'get',
     params: parameter,
     responseType: 'blob'
@@ -235,6 +235,20 @@ export function genelistDownload (parameter, filename) {
     a.download = filename
     a.click()
     URL.revokeObjectURL(url)
+  })
+}
+
+// 上传文件
+export function genelistUploadFile (record) {
+  return request({
+    url: api.genelistFile,
+    method: 'post',
+    data: record,
+    contentType: false,
+    processData: false,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
   })
 }
 

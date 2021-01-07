@@ -41,8 +41,15 @@
     <div class="table-operator">
       <a-button type="primary" icon="plus" @click="handleAdd">新建基因</a-button>
       <a-button type="primary" icon="download" @click="downloadTemplate">下载导入模板</a-button>
-      <a-button type="primary" icon="upload">上传数据</a-button>
-      <a-button type="primary" :style="{ float: 'right', overflow: 'hidden' }" icon="download" @click="uploadGenelist">导出</a-button>
+      <a-upload
+        name="file"
+        :multiple="false"
+        :customRequest="customRequest"
+        :showUploadList="false"
+      >
+        <a-button type="primary" icon="upload">上传数据</a-button>
+      </a-upload>
+      <a-button type="primary" :style="{ float: 'right', overflow: 'hidden' }" icon="download" @click="downloadGenelist">导出</a-button>
     </div>
 
     <s-table
@@ -136,7 +143,8 @@
 <script>
 import pick from 'lodash.pick'
 import { STable } from '@/components'
-import { deleteGene, getGenelist, saveGene, downloadFile, genelistDownload } from '@/api/manage'
+// eslint-disable-next-line no-unused-vars
+import { deleteGene, getGenelist, saveGene, downloadFile, genelistDownload, genelistUploadFile } from '@/api/manage'
 
 const constFields = [
   { 'text': '基因列表名', 'field': 'name' },
@@ -328,7 +336,7 @@ export default {
       this.mdl = { 'id': 0 }
     },
     downloadTemplate () {
-      const templatePath = 'D:\\dev\\tmp\\static_resource\\genelist.xlsx'
+      const templatePath = 'D:\\dev\\tmp\\static_resource\\202101071327genelist.xlsx'
       downloadFile({ 'abspath': templatePath }, 'genelist.xlsx').then(res => {
         this.confirmLoading = false
         this.$message.info('下载成功')
@@ -337,11 +345,24 @@ export default {
         this.$message.info('下载失败')
       })
     },
-    uploadGenelist () {
+    downloadGenelist () {
       const optionClassify = {}
       optionClassify[this.classifyField.Field] = true
       const requestParameters = Object.assign({}, this.queryParam, optionClassify)
       genelistDownload(requestParameters, 'genelist.csv')
+    },
+    customRequest (fileData) {
+      var formData = new FormData()
+      formData.append('file', fileData.file)
+
+      genelistUploadFile(formData).then(res => {
+        console.log('customRequest', res.data)
+        this.$refs.table.refresh()
+        this.$message.error('导入成功')
+      }).catch(res => {
+        console.log('customRequest', res.data)
+        this.$message.error('导入失败')
+      })
     }
   }
 }
