@@ -67,6 +67,20 @@ export const asyncRouterMap = [
             hideChildrenInMenu: true,
             component: () => import('@/views/list/StaticFileTableList'),
             meta: { title: '静态数据', keepAlive: true, icon: 'read', permission: [ 'static' ] }
+          },
+          {
+            path: '/report/distributor/:pageNo([1-9]\\d*)?',
+            name: 'distributor',
+            hideChildrenInMenu: true,
+            component: () => import('@/views/list/DistributorTableList'),
+            meta: { title: '经销商管理', keepAlive: true, icon: 'read', permission: [ 'distributor' ] }
+          },
+          {
+            path: '/report/reportVersion/:pageNo([1-9]\\d*)?',
+            name: 'reportVersion',
+            hideChildrenInMenu: true,
+            component: () => import('@/views/list/ReportVersionTableList'),
+            meta: { title: '报告版本管理', keepAlive: true, icon: 'read', permission: [ 'reportVersion' ] }
           }
         ]
       },

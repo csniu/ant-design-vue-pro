@@ -296,3 +296,55 @@ export function saveStaticResource (record, id = 0) {
     }
   })
 }
+
+export function getDistributor (parameter) {
+  return request({
+    url: api.distributor,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 删除
+export function deleteDistributor (record) {
+  return request({
+    url: api.distributor + record.id + '/',
+    method: 'delete',
+    data: record
+  })
+}
+
+// 创建或修改
+export function saveDistributor (record) {
+  return request({
+    url: record.id > 0 ? api.distributor + record.id + '/' : api.distributor,
+    method: record.id > 0 ? 'patch' : 'post',
+    data: record
+  })
+}
+
+export function getReportVersion (parameter) {
+  return request({
+    url: api.reportVersion,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 删除
+export function deleteReportVersion (record) {
+  return request({
+    url: api.reportVersion + record.id + '/',
+    method: 'delete',
+    data: record
+  })
+}
+
+// 创建或修改
+export function saveReportVersion (record) {
+  return request({
+    url: record.id > 0 ? api.reportVersion + record.id + '/' : api.reportVersion,
+    method: record.id > 0 ? 'patch' : 'post',
+    data: record
+  })
+}

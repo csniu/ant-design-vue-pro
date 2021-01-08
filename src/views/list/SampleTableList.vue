@@ -99,9 +99,7 @@
 </template>
 
 <script>
-import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
-// import { getRoleList, getServiceList } from '@/api/manage'
 import { getSamples, saveSample, syncSample } from '@/api/manage'
 
 import StepByStepModal from './modules/StepByStepModal'
@@ -299,11 +297,6 @@ export default {
     },
     toggleAdvanced () {
       this.advanced = !this.advanced
-    },
-    resetSearchForm () {
-      this.queryParam = {
-        date: moment(new Date())
-      }
     }
   }
 }
