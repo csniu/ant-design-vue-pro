@@ -130,7 +130,7 @@
           :wrapperCol="wrapperCol"
           hasFeedback
           label="上传"
-          v-if="typeInput === 'pdf' || typeInput === 'image' "
+          v-if="typeInput === 'file' "
         >
           <a-upload
             name="file"
@@ -181,8 +181,7 @@ const columns = [
 const types = [
   { 'value': 'all', 'label': '全部' },
   { 'value': 'text', 'label': '文本' },
-  { 'value': 'image', 'label': '图片' },
-  { 'value': 'pdf', 'label': 'PDF文件' }
+  { 'value': 'file', 'label': '文件' }
 ]
 
 const fields = ['id', 'name', 'typeof', 'text']

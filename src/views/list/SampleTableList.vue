@@ -64,6 +64,11 @@
         <span slot="comment" slot-scope="text">
           <ellipsis :length="10" tooltip>{{ text }}</ellipsis>
         </span>
+        <div slot="projects" slot-scope="text, record">
+          <template v-for="p in record.detect_projects">
+            <ellipsis :length="10" tooltip :key="p.name_ch"> {{ p.name_ch }}</ellipsis>
+          </template>
+        </div>
         <span slot="action" slot-scope="text, record">
           <template>
             <a @click="handleEdit(record)">修改</a>
@@ -136,6 +141,11 @@ const columns = [
   {
     title: '芯片号',
     dataIndex: 'chipid'
+  },
+  {
+    title: '检测项目',
+    dataIndex: 'detect_projects',
+    scopedSlots: { customRender: 'projects' }
   },
   {
     title: '其他',

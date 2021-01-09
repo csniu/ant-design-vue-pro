@@ -260,8 +260,12 @@ export default {
       })
     },
     handleAdd () {
-      this.mdl = { 'id': 0 }
+      this.mdl = { 'id': 0, 'toEmailAddress': null, 'ccEmailAddress': null, 'fileTypes': [] }
       this.visible = true
+      this.$nextTick(() => {
+        this.fields.forEach(v => this.form.getFieldDecorator(v))
+        this.form.setFieldsValue(pick(this.mdl, this.fields))
+      })
     },
     handleOk (e) {
       e.preventDefault()
@@ -269,6 +273,9 @@ export default {
       this.form.validateFields((errors, values) => {
       if (!errors) {
         values.fileTypes = values.fileTypes.join(';')
+        if (values.fileTypes === '') {
+          values.fileTypes = null
+        }
         console.log(values)
         if (values.id > 0) {
           // 修改
@@ -320,8 +327,10 @@ export default {
       })
     },
     handleemail (rule, value, callback) {
-      if (value !== null) {
-        const emails = value.split(';')
+      console.log(value)
+      if (value !== null && value !== undefined) {
+        const emails = String(value).split(';')
+        console.log(emails)
         const re = /^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$/
         for (let i = 0, len = emails.length; i < len; i++) {
           if (!re.test(emails[i]) && emails[i]) {

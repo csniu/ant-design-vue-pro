@@ -348,3 +348,34 @@ export function saveReportVersion (record) {
     data: record
   })
 }
+
+export function getTemplate (parameter) {
+  return request({
+    url: api.template,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 删除
+export function deleteTemplate (record) {
+  return request({
+    url: api.template + record.id + '/',
+    method: 'delete',
+    data: record
+  })
+}
+
+// 创建或修改
+export function saveTemplate (record, id = 0) {
+  return request({
+    url: id > 0 ? api.template + id + '/' : api.template,
+    method: id > 0 ? 'patch' : 'post',
+    data: record,
+    contentType: false,
+    processData: false,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}

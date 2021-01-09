@@ -81,6 +81,13 @@ export const asyncRouterMap = [
             hideChildrenInMenu: true,
             component: () => import('@/views/list/ReportVersionTableList'),
             meta: { title: '报告版本管理', keepAlive: true, icon: 'read', permission: [ 'reportVersion' ] }
+          },
+          {
+            path: '/report/template/:pageNo([1-9]\\d*)?',
+            name: 'Template',
+            hideChildrenInMenu: true,
+            component: () => import('@/views/list/TemplateTableList'),
+            meta: { title: '模板管理', keepAlive: true, icon: 'read', permission: [ 'template' ] }
           }
         ]
       },

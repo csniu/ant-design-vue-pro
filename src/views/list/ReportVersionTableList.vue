@@ -111,7 +111,7 @@
         >
           <a-input
             placeholder="检测 panel"
-            v-decorator="['panel', {rules: [{ required: true, message: '不能为空！' }]}]"
+            v-decorator="['panel', {rules: []}]"
           />
         </a-form-item>
 
@@ -121,7 +121,7 @@
         >
           <a-input
             placeholder="基因列表名"
-            v-decorator="['genelist', {rules: [{ required: true, message: '不能为空！' }]}]"
+            v-decorator="['genelist', {rules: []}]"
           />
         </a-form-item>
 
