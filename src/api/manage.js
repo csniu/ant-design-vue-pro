@@ -3,9 +3,9 @@ import request from '@/utils/request'
 const api = {
   sample: '/sample/samples/',
   bdmsSample: '/sample/bdms/',
-  downloadTask: '/download/tasks/',
-  analysis: '/recorder/analysis/',
-  reportRecorde: '/recorder/report/',
+  downloadTask: '/raw/tasks/',
+  analysis: '/analysis/',
+  reportRecorde: '/analysis/report/',
   file: '/file/',
   user: '/consumer/user/',
   group: '/consumer/group/',
@@ -17,7 +17,7 @@ const api = {
   distributor: '/report/distributor/',
   template: '/report/template/',
   staticResource: '/report/staticResource/',
-  report: '/report/'
+  report: '/report/report/'
 
 }
 
@@ -100,9 +100,9 @@ export function saveSample (record) {
 }
 
 // 同步样本信息
-export function syncSample (sampleid) {
+export function syncSample (sampleid, organization) {
   return request({
-    url: api.bdmsSample + sampleid + '/',
+    url: api.bdmsSample + organization + '/' + sampleid + '/',
     method: 'post'
   })
 }
@@ -377,5 +377,31 @@ export function saveTemplate (record, id = 0) {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
+  })
+}
+
+// 创建或修改
+export function saveReport (record) {
+  return request({
+    url: record.id > 0 ? api.report + record.id + '/' : api.report,
+    method: record.id > 0 ? 'patch' : 'post',
+    data: record
+  })
+}
+
+export function getReport (parameter) {
+  return request({
+    url: api.report,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 删除
+export function deleteReport (record) {
+  return request({
+    url: api.report + record.id + '/',
+    method: 'delete',
+    data: record
   })
 }

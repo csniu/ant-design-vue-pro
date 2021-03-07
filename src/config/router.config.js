@@ -44,9 +44,37 @@ export const asyncRouterMap = [
         path: '/reort',
         name: 'report',
         component: PageView,
-        meta: { title: '报告', icon: 'user', permission: [ 'report' ] },
-        redirect: '/report/backup/',
+        meta: { title: '报告管理', icon: 'user', permission: [ 'report' ] },
+        redirect: '/report/report/',
         children: [
+          {
+            path: '/report/report/:pageNo([1-9]\\d*)?',
+            name: 'report',
+            hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+            component: () => import('@/views/list/MakeReportTableList'),
+            meta: { title: '生成记录', keepAlive: true, icon: 'read', permission: [ 'report' ] }
+          },
+          {
+            path: '/report/template/:pageNo([1-9]\\d*)?',
+            name: 'Template',
+            hideChildrenInMenu: true,
+            component: () => import('@/views/list/TemplateTableList'),
+            meta: { title: '模板管理', keepAlive: true, icon: 'read', permission: [ 'template' ] }
+          },
+          {
+            path: '/report/distributor/:pageNo([1-9]\\d*)?',
+            name: 'distributor',
+            hideChildrenInMenu: true,
+            component: () => import('@/views/list/DistributorTableList'),
+            meta: { title: '经销商管理', keepAlive: true, icon: 'read', permission: [ 'distributor' ] }
+          },
+          {
+            path: '/report/reportVersion/:pageNo([1-9]\\d*)?',
+            name: 'reportVersion',
+            hideChildrenInMenu: true,
+            component: () => import('@/views/list/ReportVersionTableList'),
+            meta: { title: '报告版本管理', keepAlive: true, icon: 'read', permission: [ 'reportVersion' ] }
+          },
           {
             path: '/report/genelist/:pageNo([1-9]\\d*)?',
             name: 'genelist',
@@ -66,28 +94,7 @@ export const asyncRouterMap = [
             name: 'static',
             hideChildrenInMenu: true,
             component: () => import('@/views/list/StaticFileTableList'),
-            meta: { title: '静态数据', keepAlive: true, icon: 'read', permission: [ 'static' ] }
-          },
-          {
-            path: '/report/distributor/:pageNo([1-9]\\d*)?',
-            name: 'distributor',
-            hideChildrenInMenu: true,
-            component: () => import('@/views/list/DistributorTableList'),
-            meta: { title: '经销商管理', keepAlive: true, icon: 'read', permission: [ 'distributor' ] }
-          },
-          {
-            path: '/report/reportVersion/:pageNo([1-9]\\d*)?',
-            name: 'reportVersion',
-            hideChildrenInMenu: true,
-            component: () => import('@/views/list/ReportVersionTableList'),
-            meta: { title: '报告版本管理', keepAlive: true, icon: 'read', permission: [ 'reportVersion' ] }
-          },
-          {
-            path: '/report/template/:pageNo([1-9]\\d*)?',
-            name: 'Template',
-            hideChildrenInMenu: true,
-            component: () => import('@/views/list/TemplateTableList'),
-            meta: { title: '模板管理', keepAlive: true, icon: 'read', permission: [ 'template' ] }
+            meta: { title: '其他配置', keepAlive: true, icon: 'read', permission: [ 'static' ] }
           }
         ]
       },

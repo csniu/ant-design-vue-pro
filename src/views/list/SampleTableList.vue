@@ -247,7 +247,7 @@ export default {
             })
           } else {
             // 新增
-            syncSample(values.sample_id).then(res => {
+            syncSample(values.sample_id, values.organization).then(res => {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
@@ -275,7 +275,7 @@ export default {
     },
     handleSync (record) {
       this.confirmLoading = true
-      syncSample(record.sample_id).then(res => {
+      syncSample(record.sample_id, record.organization).then(res => {
         this.confirmLoading = false
         this.$refs.table.refresh()
         this.$message.info('同步成功')
@@ -293,7 +293,7 @@ export default {
 
         // 批量置顶
         if (key === '1') {
-          syncSample(record.sample_id).then((recordId) => {
+          syncSample(record.sample_id, record.organization).then((recordId) => {
             this.$message.info('置顶成功')
           })
         }

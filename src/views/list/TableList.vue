@@ -61,7 +61,7 @@
         <span slot="action" slot-scope="text, record">
           <template>
             <a @click="handleEdit(record)">详情</a>
-            <span v-show="record.isDoing!==true">
+            <span v-show="record.doing!==true">
               <a-divider type="vertical" />
               <a @click="handleDelete(record)">删除</a>
               <a-divider type="vertical" v-show="record.order === null"/>
