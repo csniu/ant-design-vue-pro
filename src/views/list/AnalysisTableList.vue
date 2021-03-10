@@ -53,6 +53,8 @@
             <a @click="handledeleteQueue(record)" v-show="record.order !== null">取消监控</a>
             <a-divider type="vertical" v-show="record.order !== null"/>
             <a @click="handleReclock(record)" v-show="record.order !== null">重新计时</a>
+            <a-divider type="vertical"/>
+            <a @click="handleUpdate(record)">更新</a>
           </template>
         </span>
       </s-table>
@@ -64,7 +66,7 @@
 <script>
 import moment from 'moment'
 import { STable, Ellipsis } from '@/components'
-import { getAnalysis, saveAnalysis } from '@/api/manage'
+import { getAnalysis, saveAnalysis, updateReportStatus } from '@/api/manage'
 
 import StepByStepModal from './modules/StepByStepModal'
 import CreateForm from './modules/CreateForm'
@@ -222,6 +224,17 @@ export default {
         this.confirmLoading = false
         this.$refs.table.refresh()
         this.$message.info('归零成功')
+      })
+    },
+    handleUpdate (record) {
+      this.confirmLoading = true
+      updateReportStatus(record).then(res => {
+        this.confirmLoading = false
+        this.$refs.table.refresh()
+        this.$message.info('更新成功')
+      }).catch(ref => {
+        this.confirmLoading = false
+        this.$message.info('更新失败')
       })
     },
     onSelectChange (selectedRowKeys, selectedRows) {

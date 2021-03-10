@@ -17,7 +17,8 @@ const api = {
   distributor: '/report/distributor/',
   template: '/report/template/',
   staticResource: '/report/staticResource/',
-  report: '/report/report/'
+  report: '/report/report/',
+  reportRoot: '/report/'
 
 }
 
@@ -403,5 +404,28 @@ export function deleteReport (record) {
     url: api.report + record.id + '/',
     method: 'delete',
     data: record
+  })
+}
+
+// 创建
+export function updateReportStatus (record) {
+  return request({
+    url: api.analysis + 'update/' + record.id + '/',
+    method: 'post'
+  })
+}
+
+// 创建
+export function makeReport (organization, sampleId, reportVersion, template) {
+  console.log('makeReport', organization, sampleId, reportVersion, template)
+  var makeReportUrl = api.reportRoot + 'generate/' + organization + '/' + sampleId + '/' + reportVersion + '/'
+  console.log('template', template)
+  if (typeof template !== 'undefined') {
+    makeReportUrl = makeReportUrl + template + '/'
+  }
+  console.log('makeReportUrl:', makeReportUrl)
+  return request({
+    url: makeReportUrl,
+    method: 'post'
   })
 }

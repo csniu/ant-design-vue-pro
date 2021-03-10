@@ -28,6 +28,19 @@
                 <a-input v-model="queryParam.reportVersion"/>
               </a-form-item>
             </a-col>
+            <a-col :md="8" :sm="24">
+              <a-form-item label="查询方放">
+                <a-input v-model="queryParam.dataFunc"/>
+              </a-form-item>
+            </a-col>
+            <a-col :md="8" :sm="24">
+              <a-form-item label="启用">
+                <a-select placeholder="全部" v-model="queryParam.isActive">
+                  <a-select-option value="true">是</a-select-option>
+                  <a-select-option value="false">否</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
           </template>
           <a-col :md="!advanced && 8 || 24" :sm="24">
             <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
@@ -70,13 +83,17 @@
       </span>
       <div slot="distributor" slot-scope="text, record">
         <template v-for="d in record.distributor">
-          <ellipsis :length="30" tooltip :key="d.id">{{ d.name }};</ellipsis>
+          <ellipsis :length="30" tooltip :key="d.id">{{ d.bdmsName }};</ellipsis>
         </template>
       </div>
       <div slot="reportVersion" slot-scope="text, record">
         <template v-for="r in record.reportVersion">
-          <ellipsis :length="30" tooltip :key="r.id">{{ r.name }}</ellipsis>
+          <ellipsis :length="30" tooltip :key="r.id">{{ r.bdmsName }}</ellipsis>
         </template>
+      </div>
+      <div slot="isActive" slot-scope="text">
+        <span v-if="text === true">是</span>
+        <span v-else>否</span>
       </div>
       <span slot="action" slot-scope="text, record">
         <template>
@@ -129,6 +146,20 @@
         </a-form-item>
 
         <a-form-item
+          label="数据查询方放"
+          hasFeedback
+        >
+          <a-input
+            placeholder="唯一性的名字"
+            v-decorator="['dataFunc', {rules: [{ whitespace:true }]}]"
+          />
+        </a-form-item>
+
+        <a-form-item label="启用">
+          <a-switch v-decorator="['isActive', {valuePropName: 'checked', initialValue: mdl.isActive }]"/>
+        </a-form-item>
+
+        <a-form-item
           hasFeedback
           label="文件"
         >
@@ -151,7 +182,7 @@
               :data-source="distributor"
               show-search
               :titles="['可选', '已有']"
-              :render="item => item.name"
+              :render="item => item.bdmsName"
               :list-style="{width: '200px', height: '250px',}"
               v-decorator="['distributors', {valuePropName: 'targetKeys', initialValue: mdl.distributorKeys }]"
             />
@@ -166,7 +197,7 @@
               :data-source="report"
               show-search
               :titles="['可选', '已有']"
-              :render="item => item.name"
+              :render="item => item.bdmsName"
               :list-style="{width: '200px', height: '250px',}"
               v-decorator="['reports', {valuePropName: 'targetKeys', initialValue: mdl.reportKeys }]"
             />
@@ -214,6 +245,16 @@ const columns = [
     scopedSlots: { customRender: 'filePath' }
   },
   {
+    title: '数据查询方放',
+    dataIndex: 'dataFunc',
+    scopedSlots: { customRender: 'dataFunc' }
+  },
+  {
+    title: '启用',
+    dataIndex: 'isActive',
+    scopedSlots: { customRender: 'isActive' }
+  },
+  {
     title: '修改时间',
     dataIndex: 'updataDate',
     scopedSlots: { customRender: 'time' }
@@ -225,7 +266,7 @@ const columns = [
   }
 ]
 
-const fields = ['id', 'name', 'organization', 'distributors', 'reports']
+const fields = ['id', 'name', 'organization', 'distributors', 'reports', 'isActive', 'dataFunc']
 
 export default {
   name: 'TableList',
@@ -307,7 +348,7 @@ export default {
         for (let i = 0, len = res.data.results.length; i < len; i++) {
           var p = res.data.results[i]
           p.key = p.id.toString()
-          p.title = p.name
+          p.title = p.bdmsName
           p.disabled = false
           this.distributor.push(p)
         }
@@ -323,7 +364,7 @@ export default {
         for (let i = 0, len = res.data.results.length; i < len; i++) {
           var p = res.data.results[i]
           p.key = p.id.toString()
-          p.title = p.name
+          p.title = p.bdmsName
           p.disabled = false
           this.report.push(p)
         }
@@ -369,6 +410,8 @@ export default {
         formData.append('organization', values.organization)
         formData.append('distributor', JSON.stringify(values.distributor))
         formData.append('reportVersion', JSON.stringify(values.reportVersion))
+        formData.append('isActive', JSON.stringify(values.isActive))
+        formData.append('dataFunc', values.dataFunc)
         if (this.file) {
           formData.append('filePath', this.file)
         }
@@ -398,6 +441,7 @@ export default {
             this.$message.info('创建成功')
           })
         }
+      this.confirmLoading = false
       }
       this.fileList = []
       this.file = null

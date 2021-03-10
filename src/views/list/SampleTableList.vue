@@ -27,14 +27,6 @@
 
       <div class="table-operator">
         <a-button type="primary" icon="plus" @click="handleAdd">从全流程导入</a-button>
-        <a-dropdown v-action:edit v-if="selectedRowKeys.length > 0">
-          <a-menu slot="overlay" @click="handleBatch">
-            <a-menu-item key="1"><a-icon type="delete" />同步全流程</a-menu-item>
-          </a-menu>
-          <a-button style="margin-left: 8px">
-            批量操作 <a-icon type="down" />
-          </a-button>
-        </a-dropdown>
       </div>
 
       <s-table
@@ -45,7 +37,6 @@
         :columns="columns"
         :data="loadData"
         :alert="false"
-        :rowSelection="rowSelection"
         showPagination="auto"
         tableLayout="auto"
       >
@@ -71,32 +62,38 @@
         </div>
         <span slot="action" slot-scope="text, record">
           <template>
-            <a @click="handleEdit(record)">修改</a>
-            <a-divider type="vertical" />
             <a @click="handleSync(record)">同步</a>
           </template>
         </span>
       </s-table>
 
-      <create-form
-        ref="createModal"
+      <a-modal
         title="导入"
-        :primaryKey="primaryKey"
-        :visible="visible"
-        :loading="confirmLoading"
+        style="top: 20px;"
+        :width="800"
         :model="mdl"
-        :fields="fields"
+        v-model="visible"
+        :confirmLoading="confirmLoading"
+        @ok="handleOk"
         @cancel="handleCancel"
-        @ok="handleOk">
-        <div slot="fields">
+      >
+        <a-form class="role-form" :form="form" v-bind="formLayout">
+
           <a-form-item label="样本编号">
             <a-input v-decorator="['sample_id', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]" />
           </a-form-item>
-          <a-form-item label="其他" v-if="!sync" >
-            <a-textarea v-decorator="['comment', {rules: [{ whitespace:true }]}]" />
+
+          <a-form-item label="公司">
+            <a-select
+              v-decorator="['organization', {initialValue: 'smartonco'}]"
+            >
+              <a-select-option value="smartonco">医疗</a-select-option>
+              <a-select-option value="smarthealth">健康</a-select-option>
+            </a-select>
           </a-form-item>
-        </div>
-      </create-form>
+
+        </a-form>
+      </a-modal>
       <!-- <step-by-step-modal ref="modal" @ok="handleOk"/> -->
 
     </a-card>
@@ -104,6 +101,7 @@
 </template>
 
 <script>
+import pick from 'lodash.pick'
 import { STable, Ellipsis } from '@/components'
 import { getSamples, saveSample, syncSample } from '@/api/manage'
 
@@ -164,7 +162,7 @@ const columns = [
   }
 ]
 
-const fields = ['id', 'sample_id', 'comment']
+const fields = ['id', 'sample_id', 'organization']
 
 export default {
   name: 'TableList',
@@ -178,8 +176,18 @@ export default {
     this.columns = columns
     this.fields = fields
     this.primaryKey = 'id'
+    this.formLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 7 }
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 13 }
+      }
+    }
     return {
-      sync: false,
+      form: this.$form.createForm(this),
       // create model
       visible: false,
       confirmLoading: false,
@@ -217,21 +225,19 @@ export default {
     }
   },
   methods: {
-    handleEdit (record) {
-      console.log(record)
-      this.visible = true
-      this.sync = false
-      this.mdl = { ...record }
-    },
     handleAdd () {
       this.mdl = { 'id': 0 }
       this.visible = true
-      this.sync = true
+
+      this.$nextTick(() => {
+        this.fields.forEach(v => this.form.getFieldDecorator(v))
+        this.form.setFieldsValue(pick(this.mdl, this.fields))
+      })
     },
-    handleOk () {
-      const form = this.$refs.createModal.form
+    handleOk (e) {
+      e.preventDefault()
       this.confirmLoading = true
-      form.validateFields((errors, values) => {
+      this.form.validateFields((errors, values) => {
         if (!errors) {
           console.log('values', values)
           if (values.id > 0) {
@@ -240,7 +246,7 @@ export default {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
-              form.resetFields()
+              this.form.resetFields()
               // 刷新表格
               this.$refs.table.refresh()
               this.$message.info('修改成功')
@@ -251,7 +257,7 @@ export default {
               this.visible = false
               this.confirmLoading = false
               // 重置表单数据
-              form.resetFields()
+              this.form.resetFields()
               // 刷新表格
               this.$refs.table.refresh()
               this.$message.info('同步成功')
@@ -269,9 +275,7 @@ export default {
     },
     handleCancel () {
       this.visible = false
-
-      const form = this.$refs.createModal.form
-      form.resetFields() // 清理表单数据（可不做）
+      this.form.resetFields() // 清理表单数据（可不做）
     },
     handleSync (record) {
       this.confirmLoading = true
@@ -294,7 +298,7 @@ export default {
         // 批量置顶
         if (key === '1') {
           syncSample(record.sample_id, record.organization).then((recordId) => {
-            this.$message.info('置顶成功')
+            this.$message.info('同步成功')
           })
         }
       }

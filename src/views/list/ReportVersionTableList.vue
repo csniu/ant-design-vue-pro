@@ -5,13 +5,13 @@
       <a-form layout="inline">
         <a-row :gutter="48">
           <a-col :md="8" :sm="24">
-            <a-form-item label="名称">
-              <a-input v-model="queryParam.name" placeholder=""/>
+            <a-form-item label="全流程名称">
+              <a-input v-model="queryParam.bdmsName" placeholder=""/>
             </a-form-item>
           </a-col>
           <a-col :md="8" :sm="24">
-            <a-form-item label="全流程名称">
-              <a-input v-model="queryParam.bdmsName" placeholder=""/>
+            <a-form-item label="全流程编号">
+              <a-input v-model="queryParam.bdmsNameEn" placeholder=""/>
             </a-form-item>
           </a-col>
           <a-col :md="!advanced && 8 || 24" :sm="24">
@@ -76,12 +76,12 @@
         </a-form-item>
 
         <a-form-item
-          label="名称"
+          label="全流程编号"
           hasFeedback
         >
           <a-input
-            placeholder="唯一性的名字"
-            v-decorator="['name', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]"
+            placeholder="全流程中报告版本英文名称"
+            v-decorator="['bdmsNameEn', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]"
           />
         </a-form-item>
 
@@ -92,16 +92,6 @@
           <a-input
             placeholder="全流程中报告版本中文名称"
             v-decorator="['bdmsName', {rules: []}]"
-          />
-        </a-form-item>
-
-        <a-form-item
-          label="全流程编号"
-          hasFeedback
-        >
-          <a-input
-            placeholder="全流程中报告版本英文名称"
-            v-decorator="['bdmsNameEn', {rules: [{ required: true, message: '不能为空！' }]}]"
           />
         </a-form-item>
 
@@ -143,10 +133,6 @@ const columns = [
     scopedSlots: { customRender: 'serial' }
   },
   {
-    title: '名称',
-    dataIndex: 'name'
-  },
-  {
     title: '全流程名称',
     dataIndex: 'bdmsName'
   },
@@ -174,7 +160,7 @@ const columns = [
   }
 ]
 
-const fields = ['id', 'name', 'bdmsName', 'bdmsNameEn', 'panel', 'genelist']
+const fields = ['id', 'bdmsName', 'bdmsNameEn', 'panel', 'genelist']
 
 export default {
   name: 'TableList',

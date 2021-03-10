@@ -5,12 +5,29 @@
       <div class="table-page-search-wrapper">
         <a-form layout="inline">
           <a-row :gutter="48">
-            <a-col :md="8" :sm="24">
+            <a-col :md="6" :sm="24">
               <a-form-item label="编号">
                 <a-input v-model="queryParam.sampleId" placeholder=""/>
               </a-form-item>
             </a-col>
-            <a-col :md="!advanced && 8 || 24" :sm="24">
+            <a-col :md="6" :sm="24">
+              <a-form-item label="姓名">
+                <a-input v-model="queryParam.name" placeholder=""/>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item label="状态">
+                <a-select v-model="queryParam.status" placeholder="全部">
+                  <a-select-option value="Underway">正在下载</a-select-option>
+                  <a-select-option value="Standby">排队中</a-select-option>
+                  <a-select-option value="DownloadError">下载失败</a-select-option>
+                  <a-select-option value="BadFile">文件损坏</a-select-option>
+                  <a-select-option value="FolderExistsError">文件夹已存在</a-select-option>
+                  <a-select-option value="Success">完成</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :md="!advanced && 6 || 24" :sm="24">
               <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
                 <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
                 <a-button style="margin-left: 8px" @click="() => this.queryParam = {}">重置</a-button>
@@ -120,7 +137,10 @@
             <a-switch v-decorator="['contrast', {valuePropName: 'checked', initialValue: mdl.contrast }]"/>
           </a-form-item>
           <a-form-item label="合并">
-            <a-switch v-decorator="['merge', {valuePropName: 'checked', initialValue: mdl.contrast }]"/>
+            <a-switch v-decorator="['merge', {valuePropName: 'checked', initialValue: mdl.merge }]"/>
+          </a-form-item>
+          <a-form-item label="覆盖">
+            <a-switch v-decorator="['cover', {valuePropName: 'checked', initialValue: mdl.cover }]"/>
           </a-form-item>
         </a-form>
       </a-modal>
@@ -145,6 +165,10 @@ const columns = [
   {
     title: '样本编号',
     dataIndex: 'sampleId'
+  },
+  {
+    title: '姓名',
+    dataIndex: 'name'
   },
   {
     title: '保存地址',

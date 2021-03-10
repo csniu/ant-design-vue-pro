@@ -117,7 +117,7 @@
         >
           <a-select
             placeholder="请选择"
-            v-decorator="['organization', {rules: [{ required: true, message: '不能为空！'}]}]"
+            v-decorator="['organization', {rules: [{ required: true, message: '不能为空！'}], initialValue: 'smartonco'}]"
             :options="organizationOptines"
           />
         </a-form-item>
@@ -132,20 +132,11 @@
         </a-form-item>
 
         <a-form-item
-          label="经销商"
-          hasFeedback
-        >
-          <a-input
-            v-decorator="['distributor', {rules: []}]"
-          />
-        </a-form-item>
-
-        <a-form-item
           label="报告版本"
           hasFeedback
         >
           <a-input
-            v-decorator="['reportVersion', {rules: []}]"
+            v-decorator="['reportVersion', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]"
           />
         </a-form-item>
 
@@ -169,7 +160,7 @@
 <script>
 import pick from 'lodash.pick'
 import { STable, Ellipsis } from '@/components'
-import { getReport, getTemplate, deleteReport, downloadFile, saveReport } from '@/api/manage'
+import { getReport, getTemplate, deleteReport, downloadFile, saveReport, makeReport } from '@/api/manage'
 import { formatDate } from '../../utils/util.js'
 
 const columns = [
@@ -186,10 +177,6 @@ const columns = [
     dataIndex: 'name'
   },
   {
-    title: '临床诊断',
-    dataIndex: 'clinicalDiagnose'
-  },
-  {
     title: '公司',
     dataIndex: 'organization',
     scopedSlots: { customRender: 'organization' }
@@ -200,7 +187,8 @@ const columns = [
   },
   {
     title: '报告版本',
-    dataIndex: 'reportVersion'
+    dataIndex: 'reportVersion',
+    scopedSlots: { customRender: 'reportVersion' }
   },
   {
     title: '报告模板',
@@ -232,7 +220,7 @@ const status = [
 const organizationOptines = [
       { 'value': 'smartonco', 'label': '医疗', 'disabled': false },
       { 'value': 'smarthealth', 'label': '健康', 'disabled': false }
-    ]
+]
 
 const fields = ['id', 'sampleId', 'organization', 'distributor', 'reportVersion', 'template']
 
@@ -297,7 +285,6 @@ export default {
     statusTextFilter (value) {
       console.log(status)
       const ss = status.filter(s => s.value === value)
-      console.log('ss', ss)
       if (ss.length === 0) {
         return value
       } else {
@@ -307,7 +294,6 @@ export default {
     statusFilter (value) {
       console.log(status)
       const ss = status.filter(s => s.value === value)
-      console.log('ss', ss)
       if (ss.length === 0) {
         return 'warning'
       } else {
@@ -317,7 +303,6 @@ export default {
     organizationFilter (value) {
       console.log(organizationOptines)
       const ss = organizationOptines.filter(s => s.value === value)
-      console.log('ss', ss)
       if (ss.length === 0) {
         return value
       } else {
@@ -386,7 +371,7 @@ export default {
             })
         } else {
           // 新增
-          saveReport(values).then(res => {
+          makeReport(values['organization'], values['sampleId'], values['reportVersion'], values['template']).then(res => {
             this.visible = false
             this.confirmLoading = false
             // 重置表单数据
@@ -397,6 +382,9 @@ export default {
             this.$message.info('创建成功')
           }).catch(res => {
               console.log('report create error', res.response.data)
+              if (typeof res.response.data.detail !== 'undefined') {
+                this.$message.error(res.response.data.detail)
+              }
               setTimeout(() => { this.confirmLoading = false }, 5000)
             })
         }
