@@ -82,11 +82,18 @@
       <span slot="organization" slot-scope="text">
         {{ text | organizationFilter }}
       </span>
+      <span slot="reportVersion" slot-scope="text">
+        {{ reportVersionComputed(text) }}
+      </span>
       <span slot="action" slot-scope="text, record">
         <template>
-          <a @click="handleEdit(record)">修改</a>
-          <a-divider type="vertical" />
-          <a @click="handleDelete(record)">删除</a>
+          <a @click="handleEdit(record)">重新生成</a>
+          <a-divider v-if="record.wordPath" type="vertical" />
+          <a v-if="record.wordPath" @click="handleDownlod(record.wordPath)">WORD</a>
+          <a-divider v-if="record.pdfPath" type="vertical" />
+          <a v-if="record.pdfPath" @click="handleDownlod(record.pdfPath)">PDF</a>
+          <a-divider v-if="record.jsonPath" type="vertical" />
+          <a v-if="record.jsonPath" @click="handleDownlod(record.jsonPath)">JSON</a>
         </template>
       </span>
     </s-table>
@@ -136,6 +143,7 @@
           hasFeedback
         >
           <a-input
+            placeholder="全流程报告版本编号"
             v-decorator="['reportVersion', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]"
           />
         </a-form-item>
@@ -160,7 +168,7 @@
 <script>
 import pick from 'lodash.pick'
 import { STable, Ellipsis } from '@/components'
-import { getReport, getTemplate, deleteReport, downloadFile, saveReport, makeReport } from '@/api/manage'
+import { getReport, getTemplate, deleteReport, downloadFile, saveReport, makeReport, getReportVersion } from '@/api/manage'
 import { formatDate } from '../../utils/util.js'
 
 const columns = [
@@ -249,6 +257,7 @@ export default {
     return {
       form: this.$form.createForm(this),
       templates: [],
+      reportVersions: [],
       // create model
       visible: false,
       confirmLoading: false,
@@ -283,7 +292,6 @@ export default {
       return path
       },
     statusTextFilter (value) {
-      console.log(status)
       const ss = status.filter(s => s.value === value)
       if (ss.length === 0) {
         return value
@@ -316,6 +324,17 @@ export default {
         selectedRowKeys: this.selectedRowKeys,
         onChange: this.onSelectChange
       }
+    },
+
+    reportVersionComputed () {
+      return function (reportVersionEn) {
+        const ss = this.reportVersions.filter(s => s.value === reportVersionEn)
+        if (ss.length === 0) {
+          return reportVersionEn
+        } else {
+          return ss[0].label
+        }
+      }
     }
   },
   created () {
@@ -332,11 +351,25 @@ export default {
       .catch((res) => {
         console.log('getTemplate error', res)
       })
+    // 足够大的数字，不分页
+    getReportVersion({ 'pageSize': 1000 })
+      .then(res => {
+        console.log('getReportVersion', res)
+        for (let i = 0, len = res.data.results.length; i < len; i++) {
+          var tmp = res.data.results[i]
+          this.reportVersions.push({ 'value': tmp.bdmsNameEn, 'label': tmp.bdmsName })
+        }
+        console.log('ReportVersion', this.reportVersions)
+      })
+      .catch((res) => {
+        console.log('getReportVersion error', res)
+      })
   },
   methods: {
     handleEdit (record) {
       console.log(record)
       this.mdl = { ...record }
+      this.mdl.id = 0
       this.visible = true
 
       this.$nextTick(() => {
@@ -407,14 +440,13 @@ export default {
         this.$message.info('删除成功')
       })
     },
-    handleDownlod (record) {
-      console.log(record)
-      const serverPath = record.filePath
-      const filename = serverPath.toString().split(/\\|\//).pop()
-      if (serverPath) {
-        downloadFile({ 'abspath': serverPath }, filename).then(res => {
+    handleDownlod (abspath) {
+      console.log(abspath)
+      const filename = abspath.toString().split(/\\|\//).pop()
+      if (abspath) {
+        downloadFile({ 'abspath': abspath }, filename).then(res => {
           this.confirmLoading = false
-          this.$message.info('下载成功')
+          // this.$message.info('下载成功')
         }).catch(res => {
           console.log(res)
           this.$message.info('下载失败')

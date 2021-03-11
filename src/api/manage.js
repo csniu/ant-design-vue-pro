@@ -121,7 +121,7 @@ export function downloadFile (data, filename) {
   return request({
     url: api.file,
     method: 'post',
-    data: data,
+    data: data, // {'abspath': ''}
     responseType: 'blob'
   }).then(res => {
     var a = document.createElement('a')
@@ -426,6 +426,7 @@ export function makeReport (organization, sampleId, reportVersion, template) {
   console.log('makeReportUrl:', makeReportUrl)
   return request({
     url: makeReportUrl,
-    method: 'post'
+    method: 'post',
+    data: { 'isManual': true }
   })
 }
