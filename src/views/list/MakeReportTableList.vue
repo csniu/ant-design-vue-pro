@@ -184,11 +184,11 @@ const columns = [
     title: '姓名',
     dataIndex: 'name'
   },
-  {
-    title: '公司',
-    dataIndex: 'organization',
-    scopedSlots: { customRender: 'organization' }
-  },
+  // {
+  //   title: '公司',
+  //   dataIndex: 'organization',
+  //   scopedSlots: { customRender: 'organization' }
+  // },
   {
     title: '经销商',
     dataIndex: 'distributor'
@@ -208,6 +208,11 @@ const columns = [
     scopedSlots: { customRender: 'status' }
   },
   {
+    title: '用户名',
+    dataIndex: 'user',
+    scopedSlots: { customRender: 'user' }
+  },
+  {
     title: '修改时间',
     dataIndex: 'updataDate',
     scopedSlots: { customRender: 'time' }
@@ -221,8 +226,10 @@ const columns = [
 
 const status = [
   { 'value': 'Standby', 'label': '排队中', 'status': 'warning' },
-  { 'value': 'TemplateMatching', 'label': '匹配模板', 'status': 'error' },
-  { 'value': 'ReportUnderway', 'label': '生成中', 'status': 'success' }
+  { 'value': 'Underway', 'label': '生成中', 'status': 'processing' },
+  { 'value': 'Error', 'label': '生成错误', 'status': 'error' },
+  { 'value': 'Done', 'label': '生成完成', 'status': 'success' },
+  { 'value': 'Send', 'label': '已发送', 'status': 'success' }
 ]
 
 const organizationOptines = [

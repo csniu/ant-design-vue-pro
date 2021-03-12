@@ -44,7 +44,7 @@ export const asyncRouterMap = [
         path: '/reort',
         name: 'report',
         component: PageView,
-        meta: { title: '报告管理', icon: 'user', permission: [ 'report' ] },
+        meta: { title: '报告管理', icon: 'compass', permission: [ 'report' ] },
         redirect: '/report/report/',
         children: [
           {
