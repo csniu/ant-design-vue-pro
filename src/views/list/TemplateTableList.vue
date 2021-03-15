@@ -146,7 +146,7 @@
         </a-form-item>
 
         <a-form-item
-          label="数据查询方放"
+          label="数据查询方法"
           hasFeedback
         >
           <a-input
@@ -245,7 +245,7 @@ const columns = [
     scopedSlots: { customRender: 'filePath' }
   },
   {
-    title: '数据查询方放',
+    title: '数据查询方法',
     dataIndex: 'dataFunc',
     scopedSlots: { customRender: 'dataFunc' }
   },
@@ -388,7 +388,7 @@ export default {
       })
     },
     handleAdd () {
-      this.mdl = { 'id': 0, 'distributorKeys': [], 'reportKeys': [] }
+      this.mdl = { 'id': 0, 'distributorKeys': [], 'reportKeys': [], isActive: false }
       this.visible = true
     },
     handleOk (e) {

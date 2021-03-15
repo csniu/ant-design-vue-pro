@@ -232,7 +232,7 @@ export default {
     handleEdit (record) {
       console.log(record)
       this.mdl = { ...record }
-      this.mdl.fileTypes = this.mdl.fileTypes.split(';')
+      this.mdl.fileTypes = this.mdl.fileTypes ? String(this.mdl.fileTypes).split(';') : []
       this.visible = true
 
       this.$nextTick(() => {

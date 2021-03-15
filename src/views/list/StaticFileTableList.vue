@@ -10,7 +10,7 @@
             </a-form-item>
           </a-col>
           <a-col :md="4" :sm="24">
-            <a-form-item>
+            <a-form-item label="类型">
               <a-select placeholder="请选择" v-model="queryParam.typeof">
                 <template v-for="tp in types">
                   <a-select-option :key="tp.value" :title="tp.label" :value="tp.value">{{ tp.label }}</a-select-option>
@@ -43,6 +43,9 @@
       showPagination="auto"
       tableLayout="auto"
     >
+      <span slot="serial" slot-scope="text, record, index">
+        {{ index + 1 }}
+      </span>
       <span slot="content" slot-scope="text, record">
         <template v-if="record.typeof === 'text'">
           {{ text }}
@@ -114,7 +117,7 @@
           :labelCol="labelCol"
           :wrapperCol="wrapperCol"
           hasFeedback
-          label="类型"
+          label="文本"
           v-if="typeInput === 'text'"
         >
           <a-textarea
@@ -143,6 +146,20 @@
           </a-upload>
         </a-form-item>
 
+        <a-form-item
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+          hasFeedback
+          label="备注"
+        >
+          <a-textarea
+            placeholder="请输入，最大长度 255"
+            v-decorator="['description', { initialValue: mdl.description }]"
+            show-count
+            :max-length="255"
+          />
+        </a-form-item>
+
       </a-form>
     </a-modal>
 
@@ -157,6 +174,10 @@ import { deleteStaticResource, getStaticResource, saveStaticResource, downloadFi
 
 const columns = [
   {
+    title: '#',
+    scopedSlots: { customRender: 'serial' }
+  },
+  {
     title: '名称',
     dataIndex: 'name',
     scopedSlots: { customRender: 'name' }
@@ -170,6 +191,11 @@ const columns = [
     title: '内容',
     dataIndex: 'content',
     scopedSlots: { customRender: 'content' }
+  },
+  {
+    title: '备注',
+    dataIndex: 'description',
+    scopedSlots: { customRender: 'description' }
   },
   {
     title: '操作',
@@ -234,7 +260,11 @@ export default {
   },
   filters: {
     getFilename (path) {
-        return path.split(/\\|\//).pop()
+      if (path) {
+        return String(path).split(/\\|\//).pop()
+        } else {
+          return path
+        }
       }
   },
   methods: {
@@ -274,7 +304,10 @@ export default {
       formData.append('id', values.id)
       formData.append('name', values.name)
       formData.append('typeof', values.typeof)
-      formData.append('content', values.content)
+      if (values.content) {
+        formData.append('content', values.content)
+      }
+      formData.append('description', values.description)
 
       if (!errors) {
         if (values.id > 0) {
@@ -320,7 +353,7 @@ export default {
     },
     handleAdd () {
       this.visible = true
-      this.mdl = { 'id': 0 }
+      this.mdl = { 'id': 0, 'description': null }
     },
     handleTypeChange (value) {
       this.typeInput = value
