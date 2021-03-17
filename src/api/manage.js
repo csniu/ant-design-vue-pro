@@ -12,6 +12,7 @@ const api = {
   role: '/consumer/role/',
   permission: '/consumer/permission/',
   genelist: '/report/genelist/',
+  geneClassify: '/report/gene-classify/',
   genelistFile: '/report/genelist-file/',
   reportVersion: '/report/reportVersion/',
   distributor: '/report/distributor/',
@@ -428,5 +429,22 @@ export function makeReport (organization, sampleId, reportVersion, template) {
     url: makeReportUrl,
     method: 'post',
     data: { 'isManual': true }
+  })
+}
+
+export function getGeneClassify (parameter) {
+  return request({
+    url: api.geneClassify,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 创建或修改
+export function saveGeneClassify (record) {
+  return request({
+    url: record.id > 0 ? api.report + record.id + '/' : api.report,
+    method: record.id > 0 ? 'patch' : 'post',
+    data: record
   })
 }

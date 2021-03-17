@@ -307,7 +307,9 @@ export default {
       if (values.content) {
         formData.append('content', values.content)
       }
-      formData.append('description', values.description)
+      if (values.description) {
+        formData.append('description', values.description)
+      }
 
       if (!errors) {
         if (values.id > 0) {

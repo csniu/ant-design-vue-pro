@@ -388,7 +388,7 @@ export default {
       })
     },
     handleAdd () {
-      this.mdl = { 'id': 0, 'distributorKeys': [], 'reportKeys': [], isActive: false }
+      this.mdl = { 'id': 0, 'distributorKeys': [], 'reportKeys': [], 'isActive': false, 'dataFunc': null }
       this.visible = true
     },
     handleOk (e) {

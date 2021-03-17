@@ -17,9 +17,11 @@
           <a-col :md="4" :sm="24">
             <a-form-item>
               <a-select placeholder="请选择" v-model="classifyField.Field">
-                <template v-for="cls in classify">
-                  <a-select-option :key="cls.field" :title="cls.text" :value="cls.field">{{ cls.text }}</a-select-option>
-                </template>
+                <a-select-option title="snv" value="snv">点突变</a-select-option>
+                <a-select-option title="indel" value="indel">插入缺失</a-select-option>
+                <a-select-option title="cnv" value="cnv">拷贝数</a-select-option>
+                <a-select-option title="fusion" value="fusion">融合</a-select-option>
+                <a-select-option title="chem" value="chem">化疗</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -60,14 +62,20 @@
       :columns="columns"
       :data="loadData"
       :alert="false"
-      :scroll="{ x: 1300 }"
       showPagination="auto"
       tableLayout="auto"
     >
       <span slot="cls" slot-scope="text">
         {{ text | trueFilter }}
       </span>
-
+      <span slot="time" slot-scope="text">
+        {{ text | formatDate }}
+      </span>
+      <div slot="other" slot-scope="text, record">
+        <span v-for="cly in record.classify" :key="cly.id">
+          {{ cly.category }},
+        </span>
+      </div>
       <span slot="action" slot-scope="text, record">
         <template>
           <a @click="handleEdit(record)">编辑</a>
@@ -131,7 +139,17 @@
           :wrapperCol="wrapperCol"
           label="分类"
         >
-          <a-checkbox-group :options="classifyOptions" v-decorator="['optionClassify', {initialValue: mdl.classifyValue}]"/>
+          <a-select
+            v-decorator="['optionClassify', {initialValue: mdl.classifyValue}]"
+            @change="handleChange"
+            @select="handleSelect"
+            mode="tags"
+            style="width: 100%"
+          >
+            <a-select-option v-for="cls in classify" :key="cls">
+              {{ cls }}
+            </a-select-option>
+          </a-select>
         </a-form-item>
 
       </a-form>
@@ -143,56 +161,66 @@
 <script>
 import pick from 'lodash.pick'
 import { STable } from '@/components'
-// eslint-disable-next-line no-unused-vars
-import { deleteGene, getGenelist, saveGene, downloadFile, genelistDownload, genelistUploadFile } from '@/api/manage'
+import { formatDate } from '../../utils/util.js'
+import { deleteGene, getGenelist, saveGene, genelistDownload, genelistUploadFile, getGeneClassify } from '@/api/manage'
 
-const constFields = [
-  { 'text': '基因列表名', 'field': 'name' },
-  { 'text': '基因', 'field': 'genesymbol' }
-]
-
-const classifyFields = [
-  { 'text': '点突变/插入缺失变异', 'field': 'snvIndel' },
-  { 'text': '拷贝数变异', 'field': 'cnv' },
-  { 'text': '融合变异', 'field': 'fusion' },
-  { 'text': '化疗', 'field': 'chem' },
-  { 'text': 'HR相关基因', 'field': 'HR' },
-  { 'text': 'DNA损伤修复信号通路相关基因', 'field': 'DNAMismatch' },
-  { 'text': '其他肿瘤驱动基因', 'field': 'DNAOther' },
-  { 'text': '免疫治疗相关基因', 'field': 'ImmunityRelated' },
-  { 'text': '靶向用药基因', 'field': 'TargetdrugRelated' },
-  { 'text': '全外基因', 'field': 'isWholeExome' },
-  { 'text': 'HRR通路相关基因(I级证据)', 'field': 'HRRLevel1' },
-  { 'text': 'HRR通路相关基因(II级证据)', 'field': 'HRRLevel2' },
-  { 'text': 'HRR通路其他基因(III级证据)', 'field': 'HRRLevel3' },
-  { 'text': 'DDR通路其它核心基因', 'field': 'HRRLevel4' }
-]
-
-const allFields = constFields.concat(classifyFields)
-const classify = [{ 'text': '全部', 'field': '' }].concat(classifyFields)
-
-var columns = []
-
-const leftFixed = ['name', 'genesymbol']
-
-for (let i = 0, len = allFields.length; i < len; i++) {
-  const fieldInfo = allFields[i]
-  columns.push({
-    title: fieldInfo.text,
-    dataIndex: fieldInfo.field,
-    scopedSlots: { customRender: leftFixed.includes(fieldInfo.field) ? fieldInfo.field : 'cls' },
-    // fixed: leftFixed.includes(fieldInfo.field) ? 'left' : false,
-    width: 100
-  })
-}
-
-columns.push({
+const columns = [
+  {
+    title: '#',
+    scopedSlots: { customRender: 'serial' }
+  },
+  {
+    title: '基因列表名',
+    dataIndex: 'name'
+  },
+  {
+    title: '基因',
+    dataIndex: 'genesymbol'
+  },
+  {
+    title: '位点',
+    dataIndex: 'rsid'
+  },
+  {
+    title: '点突变',
+    dataIndex: 'snv',
+    scopedSlots: { customRender: 'cls' }
+  },
+  {
+    title: '插入缺失',
+    dataIndex: 'indel',
+    scopedSlots: { customRender: 'cls' }
+  },
+  {
+    title: '拷贝数',
+    dataIndex: 'cnv',
+    scopedSlots: { customRender: 'cls' }
+  },
+  {
+    title: '融合',
+    dataIndex: 'fusion',
+    scopedSlots: { customRender: 'cls' }
+  },
+  {
+    title: '化疗',
+    dataIndex: 'chem',
+    scopedSlots: { customRender: 'cls' }
+  },
+  {
+    title: '其他分类',
+    scopedSlots: { customRender: 'other' }
+  },
+  {
+    title: '修改时间',
+    dataIndex: 'updataDate',
+    scopedSlots: { customRender: 'time' }
+  },
+  {
     title: '操作',
     dataIndex: 'action',
-    scopedSlots: { customRender: 'action' },
-    fixed: 'right',
-    align: 'left'
-  })
+    scopedSlots: { customRender: 'action' }
+  }
+]
 
 const fields = ['id', 'name', 'genesymbol', 'classifyValue']
 
@@ -205,8 +233,6 @@ export default {
     this.columns = columns
     this.fields = fields
     this.primaryKey = 'id'
-    this.classify = classify
-    this.classifyOptions = classifyFields.map(f => f.field)
     return {
      labelCol: {
         xs: { span: 24 },
@@ -222,6 +248,8 @@ export default {
       visible: false,
       confirmLoading: false,
       mdl: { primaryKey: 0 },
+      // 分类
+      classify: ['snv', 'indel', 'cnv', 'fusion'],
       // 查询参数
       classifyField: { Field: '' },
       queryParam: { },
@@ -245,11 +273,30 @@ export default {
       if (value) {
         return '✓'
       }
-    }
+    },
+    formatDate (time) {
+        var date = new Date(time)
+        return formatDate(date, 'MM/dd hh:mm')
+      }
+  },
+  created () {
+    // 足够大的数字，不分页
+    getGeneClassify({ 'pageSize': 1000 })
+      .then(res => {
+        console.log('getGeneClassify', res)
+        for (let i = 0, len = res.data.results.length; i < len; i++) {
+          var p = res.data.results[i]
+          this.classify.push(p.category)
+        }
+        console.log('classify', this.classify)
+      })
+      .catch((res) => {
+        console.log('getGeneClassify error', res)
+      })
   },
   computed: {
     summaryInfo () {
-      return `共 ${this.summary.genesymbol} 个；SNV ${this.summary.snvIndel}；CNV ${this.summary.cnv}；FUS ${this.summary.fusion}；CHEM ${this.summary.chem}；HR ${this.summary.HR}；IMMU ${this.summary.ImmunityRelated}；Targ ${this.summary.TargetdrugRelated}；HRRI ${this.summary.HRRLevel1}；HRRII ${this.summary.HRRLevel2}；HRRIII ${this.summary.HRRLevel4}；DDR ${this.summary.HRRLevel4}`
+      return `共 ${this.summary.genesymbol} 个；SNV ${this.summary.snv}；INDEL ${this.summary.indel}；CNV ${this.summary.cnv}；FUS ${this.summary.fusion}；CHEM ${this.summary.chem}`
     }
   },
   methods: {
@@ -261,6 +308,12 @@ export default {
       for (const f in record) {
         if (record[f] === true) {
           this.mdl.classifyValue.push(f)
+        }
+      }
+      for (let i = 0, len = this.mdl.classify.length; i < len; i++) {
+        const cly = this.mdl.classify[i].category
+        if (!this.mdl.classifyValue.includes(cly)) {
+          this.mdl.classifyValue.push(cly)
         }
       }
       console.log('handleEdit', this.mdl)
@@ -285,9 +338,12 @@ export default {
       this.form.validateFields((errors, values) => {
         console.log(errors, values)
 
-        for (const f in values.optionClassify) {
-          values[values.optionClassify[f]] = true
-        }
+        values.snv = values.optionClassify.includes('snv')
+        values.indel = values.optionClassify.includes('indel')
+        values.cnv = values.optionClassify.includes('cnv')
+        values.fusion = values.optionClassify.includes('fusion')
+        values.chem = values.optionClassify.includes('chem')
+        values.classify = values.optionClassify
 
         if (!errors) {
           console.log('values', values)
@@ -336,14 +392,16 @@ export default {
       this.mdl = { 'id': 0 }
     },
     downloadTemplate () {
-      const templatePath = 'D:\\dev\\tmp\\static_resource\\202101071327genelist.xlsx'
-      downloadFile({ 'abspath': templatePath }, 'genelist.xlsx').then(res => {
-        this.confirmLoading = false
-        this.$message.info('下载成功')
-      }).catch(res => {
-        console.log(res)
-        this.$message.info('下载失败')
-      })
+      const bom = new Uint8Array([0xEF, 0xBB, 0xBF])
+      var a = document.createElement('a')
+      // type 常见值 https://www.runoob.com/http/http-content-type.html
+      // 添加 bom 信息，防止 utf_8_sig 编码中文乱码。https://www.coder.work/article/5771171
+      var blob = new Blob([bom, 'genesymbol,rsid,snv,indel,cnv,fusion,chem,其他分类'], { type: 'application/octet-stream' })
+      var url = URL.createObjectURL(blob)
+      a.href = url
+      a.download = 'genelist_name.csv'
+      a.click()
+      URL.revokeObjectURL(url)
     },
     downloadGenelist () {
       const optionClassify = {}
@@ -358,11 +416,23 @@ export default {
       genelistUploadFile(formData).then(res => {
         console.log('customRequest', res.data)
         this.$refs.table.refresh()
-        this.$message.error('导入成功')
+        this.$message.info('导入成功')
       }).catch(res => {
-        console.log('customRequest', res.data)
-        this.$message.error('导入失败')
+        console.log('customRequest', res)
+        if (typeof res.response.data.detail !== 'undefined') {
+          this.$message.error('导入失败:' + res.response.data.detail)
+        } else {
+          this.$message.error('导入失败')
+        }
       })
+    },
+    handleChange (value) {
+      console.log(`selected ${value}`)
+    },
+    handleSelect (value) {
+      if (!this.classify.includes(value)) {
+        this.classify.push(value)
+      }
     }
   }
 }

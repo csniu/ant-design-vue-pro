@@ -39,7 +39,7 @@ export const asyncRouterMap = [
         component: () => import('@/views/list/AnalysisTableList'),
         meta: { title: '分析状态', keepAlive: true, icon: 'radar-chart', permission: [ 'analysis' ] }
       },
-      // 用户管理
+      // 报告管理
       {
         path: '/reort',
         name: 'report',
@@ -98,6 +98,7 @@ export const asyncRouterMap = [
           }
         ]
       },
+      // 用户管理
       {
         path: '/manage',
         name: 'userMange',
@@ -141,6 +142,13 @@ export const asyncRouterMap = [
             meta: { title: '修改密码' }
           }
         ]
+      },
+      {
+        path: '/sample-profile',
+        name: 'sampleProfile',
+        hidden: true,
+        meta: { title: '样本详情', icon: 'profile' },
+        component: () => import('@/views/profile/advanced/sample')
       }
     ]
   },
