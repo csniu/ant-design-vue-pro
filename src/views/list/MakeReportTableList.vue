@@ -35,7 +35,7 @@
             </a-col>
             <a-col :md="8" :sm="24">
               <a-form-item label="状态">
-                <a-select placeholder="全部" v-model="queryParam.status" :options="status">
+                <a-select placeholder="全部" v-model="queryParam.status" :options="status" :allowClear="true">
                 </a-select>
               </a-form-item>
             </a-col>

@@ -16,7 +16,7 @@
           </a-col>
           <a-col :md="4" :sm="24">
             <a-form-item>
-              <a-select placeholder="请选择" v-model="classifyField.Field">
+              <a-select placeholder="全部" v-model="classifyField.Field" :allowClear="true">
                 <a-select-option title="snv" value="snv">点突变</a-select-option>
                 <a-select-option title="indel" value="indel">插入缺失</a-select-option>
                 <a-select-option title="cnv" value="cnv">拷贝数</a-select-option>
@@ -130,6 +130,18 @@
           <a-input
             placeholder=""
             v-decorator="['genesymbol', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]"
+          />
+        </a-form-item>
+
+        <a-form-item
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+          label="位点"
+          hasFeedback
+        >
+          <a-input
+            placeholder=""
+            v-decorator="['rsid', {initialValue: mdl.rsid}]"
           />
         </a-form-item>
 

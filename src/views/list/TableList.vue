@@ -17,7 +17,7 @@
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item label="状态">
-                <a-select v-model="queryParam.status" placeholder="全部">
+                <a-select v-model="queryParam.status" :allowClear="true" placeholder="全部">
                   <a-select-option value="Underway">正在下载</a-select-option>
                   <a-select-option value="Standby">排队中</a-select-option>
                   <a-select-option value="DownloadError">下载失败</a-select-option>
@@ -311,6 +311,9 @@ export default {
         onChange: this.onSelectChange
       }
     }
+  },
+  created () {
+    this.queryParam = this.$route.params
   },
   methods: {
     handleEdit (record) {

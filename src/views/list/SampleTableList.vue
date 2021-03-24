@@ -63,6 +63,8 @@
         <span slot="action" slot-scope="text, record">
           <template>
             <a @click="handleSync(record)">同步</a>
+            <a-divider type="vertical" />
+            <a @click="toProfile(record)">详情</a>
           </template>
         </span>
       </s-table>
@@ -225,6 +227,9 @@ export default {
     }
   },
   methods: {
+    toProfile (record) {
+      this.$router.push({ name: 'sampleProfile', params: { 'id': record.id } })
+    },
     handleAdd () {
       this.mdl = { 'id': 0 }
       this.visible = true

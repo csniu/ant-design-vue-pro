@@ -11,7 +11,7 @@
           </a-col>
           <a-col :md="8" :sm="24">
             <a-form-item label="公司">
-              <a-select placeholder="全部" v-model="queryParam.organization">
+              <a-select placeholder="全部" v-model="queryParam.organization" :allowClear="true">
                 <a-select-option value="smartonco">医疗</a-select-option>
                 <a-select-option value="smarthealth">健康</a-select-option>
               </a-select>
@@ -35,7 +35,7 @@
             </a-col>
             <a-col :md="8" :sm="24">
               <a-form-item label="启用">
-                <a-select placeholder="全部" v-model="queryParam.isActive">
+                <a-select placeholder="全部" v-model="queryParam.isActive" :allowClear="true">
                   <a-select-option value="true">是</a-select-option>
                   <a-select-option value="false">否</a-select-option>
                 </a-select>
