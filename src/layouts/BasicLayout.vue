@@ -28,12 +28,12 @@
         </a-tooltip>
       </div>
     </template> -->
-
-    <setting-drawer :settings="settings" @change="handleSettingChange">
+    <!-- 设置按钮 -->
+    <!-- <setting-drawer :settings="settings" @change="handleSettingChange">
       <div style="margin: 12px 0;">
         This is SettingDrawer custom footer content.
       </div>
-    </setting-drawer>
+    </setting-drawer> -->
     <template v-slot:rightContentRender>
       <right-content :top-menu="settings.layout === 'topmenu'" :is-mobile="isMobile" :theme="settings.theme" />
     </template>
