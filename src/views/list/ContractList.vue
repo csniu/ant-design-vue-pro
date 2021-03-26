@@ -11,7 +11,7 @@
           </a-col>
           <a-col :md="8" :sm="24">
             <a-form-item label="公司名称">
-              <a-select placeholder="慧算公司" v-model="queryParam.organization">
+              <a-select placeholder="所有" v-model="queryParam.organization" :allowClear="true">
                 <a-select-option value="M">慧算医疗</a-select-option>
                 <a-select-option value="G">慧算基因</a-select-option>
                 <a-select-option value="H">慧算健康</a-select-option>
@@ -19,37 +19,43 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :md="8" :sm="24">
-            <a-form-item label="付款方式">
-              <a-select placeholder="付款方式" v-model="queryParam.payWay">
-                <a-select-option value="XS">收钱进来</a-select-option>
-                <a-select-option value="CG">付钱出去</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :md="8" :sm="24">
-            <a-form-item label="申请日期">
-              <a-date-picker placeholder="申请日期" v-model="queryParam.createDate" />
-            </a-form-item>
-          </a-col>
-          <a-col :md="8" :sm="24">
-            <a-form-item label="业务类型">
-              <a-select placeholder="业务类型" v-model="queryParam.businessType">
-                <a-select-option value="A">科服业务</a-select-option>
-                <a-select-option value="H">健康业务</a-select-option>
-                <a-select-option value="D">ctDNA业务</a-select-option>
-                <a-select-option value="R">试剂业务</a-select-option>
-                <a-select-option value="T">软件及IT业务</a-select-option>
-                <a-select-option value="E">设备业务</a-select-option>
-                <a-select-option value="O">其他业务</a-select-option>
-                <a-select-option value="">框架协议</a-select-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
+          <template v-if="advanced">
+            <a-col :md="8" :sm="24">
+              <a-form-item label="付款方式">
+                <a-select placeholder="所有" v-model="queryParam.payWay" :allowClear="true">
+                  <a-select-option value="XS">收钱进来</a-select-option>
+                  <a-select-option value="CG">付钱出去</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :md="8" :sm="24">
+              <a-form-item label="申请日期">
+                <a-date-picker placeholder="申请日期" v-model="queryParam.createDate"/>
+              </a-form-item>
+            </a-col>
+            <a-col :md="8" :sm="24">
+              <a-form-item label="业务类型">
+                <a-select placeholder="所有" v-model="queryParam.businessType" :allowClear="true">
+                  <a-select-option value="A">科服业务</a-select-option>
+                  <a-select-option value="H">健康业务</a-select-option>
+                  <a-select-option value="D">ctDNA业务</a-select-option>
+                  <a-select-option value="R">试剂业务</a-select-option>
+                  <a-select-option value="T">软件及IT业务</a-select-option>
+                  <a-select-option value="E">设备业务</a-select-option>
+                  <a-select-option value="O">其他业务</a-select-option>
+                  <a-select-option value="">框架协议</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+          </template>
           <a-col :md="!advanced && 8 || 24" :sm="24">
             <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
               <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
               <a-button style="margin-left: 8px" @click="() => this.queryParam = {}">重置</a-button>
+              <a @click="toggleAdvanced" style="margin-left: 8px">
+                {{ advanced ? '收起' : '展开' }}
+                <a-icon :type="advanced ? 'up' : 'down'"/>
+              </a>
             </span>
           </a-col>
         </a-row>
@@ -84,7 +90,7 @@
         </template>
       </div>
       <div slot="organization" slot-scope="text, record">
-      {{ record.organization | formatcompanyDict }}
+        {{ record.organization | formatcompanyDict }}
       </div>
       <div slot="cooperateOrganization" slot-scope="text, record">
         <template v-for="d in record.cooperateOrganization">
@@ -92,10 +98,10 @@
         </template>
       </div>
       <div slot="payWay" slot-scope="text, record">
-      {{ record.payWay | formatcompanyDict }}
+        {{ record.payWay | formatcompanyDict }}
       </div>
       <div slot="businessType" slot-scope="text, record">
-      {{ record.businessType | formatbusinessDict }}
+        {{ record.businessType | formatbusinessDict }}
       </div>
     </s-table>
 
@@ -136,7 +142,7 @@
         >
           <a-input
             placeholder="其他公司名称"
-            v-decorator="['cooperateOrganization', {rules: [{ whitespace:true }]}]"
+            v-decorator="['cooperateOrganization', {rules: [{ required: true, message: '不能为空！'}, {min: 4, message: '不能少于5个字符'}]}]"
           />
         </a-form-item>
 
@@ -157,7 +163,7 @@
         >
           <a-input
             placeholder="合同金额"
-            v-decorator="['amountContract', {rules: [{ whitespace:true }]}]"
+            v-decorator="['amountContract', {rules: [{ required: false }]}]"
           />
         </a-form-item>
 
@@ -181,7 +187,7 @@
 import pick from 'lodash.pick'
 import { STable, Ellipsis } from '@/components'
 import { saveContract, getContract } from '@/api/manage'
-import { formatDate, formatcompanyDict, formatbusinessDict } from '../../utils/util.js'
+import { formatDate } from '../../utils/util.js'
 
 const columns = [
   {
@@ -217,6 +223,26 @@ const columns = [
     scopedSlots: { customRender: 'createDate' }
   }
 ]
+
+const businessDict = {
+  'A': '科服业务',
+  'H': '健康业务',
+  'D': 'ctDNA业务',
+  'R': '试剂业务',
+  'T': '软件及IT业务',
+  'E': '设备业务',
+  'O': '其他业务',
+  '': '框架协议'
+}
+
+const companyDict = {
+  'M': '慧算医疗',
+  'G': '慧算基因',
+  'H': '慧算健康',
+  'L': '慧算实验室',
+  'XS': '收钱进来',
+  'CG': '付钱出去'
+}
 
 const fields = ['contractId', 'organization', 'cooperateOrganization', 'payWay', 'businessType', 'createDate']
 
@@ -262,13 +288,6 @@ export default {
     ]
     return {
       form: this.$form.createForm(this),
-      organization: null,
-      cooperateOrganization: null,
-      payWay: null,
-      amountContract: null,
-      businessType: null,
-      createDate: null,
-      date: null,
       // create model
       visible: false,
       confirmLoading: false,
@@ -280,6 +299,9 @@ export default {
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
         const requestParameters = Object.assign({}, parameter, this.queryParam)
+        if (typeof requestParameters.createDate !== 'undefined') {
+          requestParameters.createDate = requestParameters.createDate.format('YYYY-MM-DD')
+        }
         console.log('loadData request parameters:', requestParameters)
         return getContract(requestParameters)
           .then(res => {
@@ -297,11 +319,19 @@ export default {
       },
 
     formatbusinessDict (value) {
-        return formatbusinessDict(value)
+      const business = businessDict[value]
+      if (typeof business === 'undefined') {
+        return value
+      }
+      return business
       },
 
     formatcompanyDict (value) {
-        return formatcompanyDict(value)
+      const company = companyDict[value]
+      if (typeof company === 'undefined') {
+        return value
+      }
+      return company
       }
   },
   computed: {
@@ -316,8 +346,6 @@ export default {
     handleEdit (record) {
       console.log(record)
       this.mdl = { ...record }
-      this.mdl.distributorKeys = this.mdl.distributor.map(p => p.id.toString())
-      this.mdl.reportKeys = this.mdl.reportVersion.map(p => p.id.toString())
       this.visible = true
       this.$nextTick(() => {
         this.fields.forEach(v => this.form.getFieldDecorator(v))
@@ -345,21 +373,20 @@ export default {
 
             this.$message.info('创建成功')
           })
-      this.confirmLoading = false
       }
-      this.fileList = []
-      this.file = null
+      this.confirmLoading = false
       })
     },
     handleCancel () {
       this.visible = false
-      this.fileList = []
-      this.file = null
       this.form.resetFields() // 清理表单数据（可不做）
     },
     handleDelete (record) {
       console.log('handleDelete')
       this.confirmLoading = true
+    },
+    toggleAdvanced () {
+      this.advanced = !this.advanced
     }
   }
 }
