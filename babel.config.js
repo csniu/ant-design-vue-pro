@@ -1,9 +1,11 @@
+// eslint-disable-next-line no-unused-vars
 const IS_PROD = ['production', 'prod'].includes(process.env.NODE_ENV)
 
 const plugins = []
-if (IS_PROD) {
-  plugins.push('transform-remove-console')
-}
+// 编译时不删除日志
+// if (IS_PROD) {
+//   plugins.push('transform-remove-console')
+// }
 
 // lazy load ant-design-vue
 // if your use import on Demand, Use this code
