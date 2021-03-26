@@ -41,7 +41,7 @@ export const asyncRouterMap = [
       },
       // 报告管理
       {
-        path: '/reort',
+        path: '/report',
         name: 'report',
         component: PageView,
         meta: { title: '报告管理', icon: 'compass', permission: [ 'report' ] },
@@ -49,7 +49,7 @@ export const asyncRouterMap = [
         children: [
           {
             path: '/report/report/:pageNo([1-9]\\d*)?',
-            name: 'report',
+            name: 'makeReport',
             hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
             component: () => import('@/views/list/MakeReportTableList'),
             meta: { title: '生成记录', keepAlive: true, icon: 'read', permission: [ 'report' ] }
@@ -144,7 +144,7 @@ export const asyncRouterMap = [
         ]
       },
       {
-        path: '/sample-profile',
+        path: '/sample-profile/:sampleRecoderId(\\d*)?',
         name: 'sampleProfile',
         hidden: true,
         meta: { title: '样本详情', icon: 'profile' },

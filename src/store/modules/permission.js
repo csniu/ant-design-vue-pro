@@ -64,6 +64,18 @@ function filterAsyncRouter (routerMap, roles) {
   return accessedRouters
 }
 
+// 提取所有可访问的路由地址
+function getAsyncRouterPaths (routers) {
+  var paths = []
+  for (let i = 0, len = routers.length; i < len; i++) {
+    paths.push(routers[i].path.split(':')[0])
+    if (typeof routers[i].children !== 'undefined') {
+      paths = paths.concat(getAsyncRouterPaths(routers[i].children))
+    }
+  }
+  return paths
+}
+
 const permission = {
   state: {
     routers: constantRouterMap,
@@ -80,6 +92,12 @@ const permission = {
       return new Promise(resolve => {
         const { roles } = data
         const accessedRouters = filterAsyncRouter(asyncRouterMap, roles)
+        const indexRedirect = accessedRouters[0].redirect
+        const routerPaths = getAsyncRouterPaths(accessedRouters)
+        // 如果主页的重定向地址是无权访问的，则重置改重定向地址为第一个可访问路径
+        if (!routerPaths.includes(indexRedirect)) {
+          accessedRouters[0].redirect = routerPaths[1]
+        }
         commit('SET_ROUTERS', accessedRouters)
         resolve()
       })
