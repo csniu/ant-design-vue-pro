@@ -83,6 +83,13 @@ export function getSamples (parameter) {
   })
 }
 
+export function getSample (id) {
+  return request({
+    url: api.sample + id + '/',
+    method: 'get'
+  })
+}
+
 // 删除
 export function deleteSample (record) {
   return request({

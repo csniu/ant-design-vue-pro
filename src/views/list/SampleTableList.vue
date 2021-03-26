@@ -228,7 +228,9 @@ export default {
   },
   methods: {
     toProfile (record) {
-      this.$router.push({ name: 'sampleProfile', params: { 'id': record.id } })
+      // query传参数，相当于拼接在url后面，这种方式不会丢失参数，但是数据量大的话（比如传递对象），url就会变得太长而且不隐密。
+      // params传参数，不在url中显示，但是刷新页面的时候无法避免丢失。
+      this.$router.push({ name: 'sampleProfile', query: { 'sampleRecoderId': record.id } })
     },
     handleAdd () {
       this.mdl = { 'id': 0 }
