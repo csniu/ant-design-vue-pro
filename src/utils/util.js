@@ -95,4 +95,71 @@ export function formatDate (date, fmt) {
  */
 function padLeftZero (str) {
   return ('00' + str).substr(str.length)
+};
+
+/**
+ * 公司类型键值对转换
+ */
+ export function formatcompanyDict (value) {
+  if (value === 'M') {
+  return '慧算医疗'
+  }
+
+  if (value === 'G') {
+  return '慧算基因'
+  }
+
+  if (value === 'H') {
+  return '慧算健康'
+  }
+
+  if (value === 'L') {
+  return '慧算实验室'
+  }
+
+  if (value === 'XS') {
+  return '收钱进来'
+  }
+
+  if (value === 'CG') {
+  return '付钱出去'
+  }
+;
+
+/**
+ * 业务类型键值对转换
+ */
+ export function formatbusinessDict (value) {
+  if (value === 'A') {
+  return '科服业务'
+  }
+
+  if (value === 'H') {
+  return '健康业务'
+  }
+
+  if (value === 'D') {
+  return 'ctDNA业务'
+  }
+
+  if (value === 'R') {
+  return '试剂业务'
+  }
+
+  if (value === 'T') {
+  return '软件及IT业务'
+  }
+
+  if (value === 'E') {
+  return '设备业务'
+  }
+
+  if (value === 'O') {
+  return '其他业务'
+  }
+
+  if (value === '') {
+  return '框架协议'
+  }
 }
+

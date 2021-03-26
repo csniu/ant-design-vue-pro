@@ -19,7 +19,8 @@ const api = {
   template: '/report/template/',
   staticResource: '/report/staticResource/',
   report: '/report/report/',
-  reportRoot: '/report/'
+  reportRoot: '/report/',
+  contract: '/contract/'
 
 }
 
@@ -451,6 +452,32 @@ export function getGeneClassify (parameter) {
 export function saveGeneClassify (record) {
   return request({
     url: record.id > 0 ? api.report + record.id + '/' : api.report,
+    method: record.id > 0 ? 'patch' : 'post',
+    data: record
+  })
+}
+
+export function getContract (parameter) {
+  return request({
+    url: api.contract,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 删除
+export function deleteContract (record) {
+  return request({
+    url: api.contract + record.id + '/',
+    method: 'delete',
+    data: record
+  })
+}
+
+// 创建或修改
+export function saveContract (record) {
+  return request({
+    url: record.id > 0 ? api.contract + record.id + '/' : api.contract,
     method: record.id > 0 ? 'patch' : 'post',
     data: record
   })
