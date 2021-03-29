@@ -87,6 +87,8 @@
               <a @click="handledeleteQueue(record)" v-show="record.order !== null">取消下载</a>
               <a-divider type="vertical" v-show="record.order !== null"/>
               <a @click="handleTopQueue(record)" v-show="record.order !== null">置顶</a>
+              <a-divider type="vertical" v-show="record.order !== null"/>
+              <a @click="handleLowQueue(record)" v-show="record.order !== null">置低</a>
             </span>
           </template>
         </span>
@@ -176,7 +178,7 @@ const columns = [
     scopedSlots: { customRender: 'savePath' }
   },
   {
-    title: '更新时间',
+    title: '创建时间',
     dataIndex: 'createDate',
     scopedSlots: { customRender: 'time' }
   },
@@ -394,6 +396,14 @@ export default {
     handleTopQueue (record) {
       this.confirmLoading = true
       saveTask({ 'id': record.id, 'order': new Date() / 1000 }).then(res => {
+        this.confirmLoading = false
+        this.$refs.table.refresh()
+        this.$message.info('置顶成功')
+      })
+    },
+    handleLowQueue (record) {
+      this.confirmLoading = true
+      saveTask({ 'id': record.id, 'order': -(new Date() / 1000) }).then(res => {
         this.confirmLoading = false
         this.$refs.table.refresh()
         this.$message.info('置顶成功')
