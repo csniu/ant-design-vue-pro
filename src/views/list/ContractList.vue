@@ -38,7 +38,7 @@
                 <a-select placeholder="所有" v-model="queryParam.businessType" :allowClear="true">
                   <a-select-option value="A">科服业务</a-select-option>
                   <a-select-option value="H">健康业务</a-select-option>
-                  <a-select-option value="D">ctDNA业务</a-select-option>
+                  <a-select-option value="D">肿瘤基因检测业务</a-select-option>
                   <a-select-option value="R">试剂业务</a-select-option>
                   <a-select-option value="T">软件及IT业务</a-select-option>
                   <a-select-option value="E">设备业务</a-select-option>
@@ -258,7 +258,7 @@ const columns = [
 const businessDict = {
   'A': '科服业务',
   'H': '健康业务',
-  'D': 'ctDNA业务',
+  'D': '肿瘤基因检测业务',
   'R': '试剂业务',
   'T': '软件及IT业务',
   'E': '设备业务',
@@ -317,7 +317,7 @@ export default {
       businessTypeDefaultOptines: [
       { 'value': 'A', 'label': '科服业务', 'disabled': false },
       { 'value': 'H', 'label': '健康业务', 'disabled': false },
-      { 'value': 'D', 'label': 'ctDNA业务', 'disabled': false },
+      { 'value': 'D', 'label': '肿瘤基因检测业务', 'disabled': false },
       { 'value': 'R', 'label': '试剂业务', 'disabled': false },
       { 'value': 'T', 'label': '软件及IT业务', 'disabled': false },
       { 'value': 'E', 'label': '设备业务', 'disabled': false },
