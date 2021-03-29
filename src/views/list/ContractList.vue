@@ -133,6 +133,7 @@
             placeholder="请选择"
             v-decorator="['organization', {rules: [{ required: true, message: '不能为空！'}]}]"
             :options="organizationOptiones"
+            :allowClear="true"
           />
         </a-form-item>
 
@@ -142,7 +143,8 @@
         >
           <a-input
             placeholder="其他公司名称"
-            v-decorator="['cooperateOrganization', {rules: [{ required: true, message: '不能为空！'}, {min: 4, message: '不能少于5个字符'}]}]"
+            v-decorator="['cooperateOrganization', {rules: [{ required: true, message: '不能为空！'}, {min: 4, message: '不能少于4个字符'}]}]"
+            :allowClear="true"
           />
         </a-form-item>
 
@@ -154,6 +156,7 @@
             placeholder="请选择"
             v-decorator="['payWay', {rules: [{ required: true, message: '不能为空！'}]}]"
             :options="payWayOptines"
+            :allowClear="true"
           />
         </a-form-item>
 
@@ -161,9 +164,10 @@
           label="合同金额"
           hasFeedback
         >
-          <a-input
+          <a-input-number
             placeholder="合同金额"
             v-decorator="['amountContract', {rules: [{ required: false }]}]"
+            @change="onBusinessSelect"
           />
         </a-form-item>
 
@@ -175,6 +179,7 @@
             placeholder="请选择"
             v-decorator="['businessType']"
             :options="businessTypeOptines"
+            :allowClear="true"
           />
         </a-form-item>
       </a-form>
@@ -213,6 +218,11 @@ const columns = [
     scopedSlots: { customRender: 'payWay' }
   },
   {
+    title: '合同金额',
+    dataIndex: 'amountContract',
+    scopedSlots: { customRender: 'amountContract' }
+  },
+  {
     title: '业务类型',
     dataIndex: 'businessType',
     scopedSlots: { customRender: 'businessType' }
@@ -244,7 +254,7 @@ const companyDict = {
   'CG': '付钱出去'
 }
 
-const fields = ['contractId', 'organization', 'cooperateOrganization', 'payWay', 'businessType', 'createDate']
+const fields = ['contractId', 'organization', 'cooperateOrganization', 'payWay', 'amountContract', 'businessType', 'createDate']
 
 export default {
   name: 'TableList',
@@ -276,17 +286,18 @@ export default {
       { 'value': 'XS', 'label': '收钱进来', 'disabled': false },
       { 'value': 'CG', 'label': '付钱出去', 'disabled': false }
     ]
-    this.businessTypeOptines = [
+
+    return {
+      businessTypeOptines: [ { 'value': '', 'label': '框架协议', 'disabled': false } ],
+      businessTypeDefaultOptines: [
       { 'value': 'A', 'label': '科服业务', 'disabled': false },
       { 'value': 'H', 'label': '健康业务', 'disabled': false },
       { 'value': 'D', 'label': 'ctDNA业务', 'disabled': false },
       { 'value': 'R', 'label': '试剂业务', 'disabled': false },
       { 'value': 'T', 'label': '软件及IT业务', 'disabled': false },
       { 'value': 'E', 'label': '设备业务', 'disabled': false },
-      { 'value': 'O', 'label': '其他业务', 'disabled': false },
-      { 'value': '', 'label': '框架协议', 'disabled': false }
-    ]
-    return {
+      { 'value': 'O', 'label': '其他业务', 'disabled': false }
+    ],
       form: this.$form.createForm(this),
       // create model
       visible: false,
@@ -343,6 +354,13 @@ export default {
     }
   },
   methods: {
+    onBusinessSelect (record) {
+    if (!record) {
+      this.businessTypeOptines = [{ 'value': '', 'label': '框架协议', 'disabled': false }]
+    } else {
+      this.businessTypeOptines = this.businessTypeDefaultOptines
+    }
+    },
     handleEdit (record) {
       console.log(record)
       this.mdl = { ...record }
