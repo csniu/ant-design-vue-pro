@@ -47,6 +47,11 @@
                 </a-select>
               </a-form-item>
             </a-col>
+            <a-col :md="8" :sm="24" v-show="isShow">
+              <a-form-item label="用户">
+                <a-input v-model="queryParam.user" placeholder=""/>
+              </a-form-item>
+            </a-col>
           </template>
           <a-col :md="!advanced && 8 || 24" :sm="24">
             <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
@@ -193,6 +198,22 @@ import pick from 'lodash.pick'
 import { STable, Ellipsis } from '@/components'
 import { saveContract, getContract } from '@/api/manage'
 import { formatDate } from '../../utils/util.js'
+import user from '@/store/modules/user'
+
+const users = [ 'mlyuan', 'Twinkle', 'wangfei' ]
+
+function showUser () {
+  if (user.state.isSuperuser) {
+    return true
+  }
+  if (user.state.isAdmin) {
+    return true
+  }
+  if (users.includes(user.state.name)) {
+    return true
+  }
+  return false
+}
 
 const columns = [
   {
@@ -264,8 +285,12 @@ export default {
   },
   data () {
     this.columns = columns
+    if (showUser()) {
+      this.columns.push({ title: '用户', dataIndex: 'user' })
+    }
     this.fields = fields
     this.primaryKey = 'id'
+    this.isShow = showUser()
     this.formLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -309,6 +334,9 @@ export default {
       queryParam: {},
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
+        if (!this.isShow) {
+          this.queryParam = { 'user': user.state.name }
+        }
         const requestParameters = Object.assign({}, parameter, this.queryParam)
         if (typeof requestParameters.createDate !== 'undefined') {
           requestParameters.createDate = requestParameters.createDate.format('YYYY-MM-DD')
