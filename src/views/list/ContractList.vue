@@ -215,46 +215,6 @@ function showUser () {
   return false
 }
 
-const columns = [
-  {
-    title: '#',
-    scopedSlots: { customRender: 'serial' }
-  },
-  {
-    title: '合同编码',
-    dataIndex: 'contractId'
-  },
-  {
-    title: '慧算公司',
-    dataIndex: 'organization',
-    scopedSlots: { customRender: 'organization' }
-  },
-   {
-    title: '合作公司',
-    dataIndex: 'cooperateOrganization'
-  },
-  {
-    title: '付款方式',
-    dataIndex: 'payWay',
-    scopedSlots: { customRender: 'payWay' }
-  },
-  {
-    title: '合同金额',
-    dataIndex: 'amountContract',
-    scopedSlots: { customRender: 'amountContract' }
-  },
-  {
-    title: '业务类型',
-    dataIndex: 'businessType',
-    scopedSlots: { customRender: 'businessType' }
-  },
-   {
-    title: '申请日期',
-    dataIndex: 'createDate',
-    scopedSlots: { customRender: 'createDate' }
-  }
-]
-
 const businessDict = {
   'A': '科服业务',
   'H': '健康业务',
@@ -284,7 +244,45 @@ export default {
     Ellipsis
   },
   data () {
-    this.columns = columns
+    this.columns = [
+      {
+        title: '#',
+        scopedSlots: { customRender: 'serial' }
+      },
+      {
+        title: '合同编码',
+        dataIndex: 'contractId'
+      },
+      {
+        title: '慧算公司',
+        dataIndex: 'organization',
+        scopedSlots: { customRender: 'organization' }
+      },
+      {
+        title: '合作公司',
+        dataIndex: 'cooperateOrganization'
+      },
+      {
+        title: '付款方式',
+        dataIndex: 'payWay',
+        scopedSlots: { customRender: 'payWay' }
+      },
+      {
+        title: '合同金额',
+        dataIndex: 'amountContract',
+        scopedSlots: { customRender: 'amountContract' }
+      },
+      {
+        title: '业务类型',
+        dataIndex: 'businessType',
+        scopedSlots: { customRender: 'businessType' }
+      },
+      {
+        title: '申请日期',
+        dataIndex: 'createDate',
+        scopedSlots: { customRender: 'createDate' }
+      }
+    ]
     if (showUser()) {
       this.columns.push({ title: '用户', dataIndex: 'user' })
     }
@@ -344,6 +342,7 @@ export default {
         console.log('loadData request parameters:', requestParameters)
         return getContract(requestParameters)
           .then(res => {
+            console.log('res', res)
             return res.data
           })
       },
