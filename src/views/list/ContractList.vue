@@ -102,6 +102,11 @@
           <ellipsis :length="30" tooltip :key="d.id">{{ d.bdmsName }};</ellipsis>
         </template>
       </div>
+      <div slot="companyAbbreviation" slot-scope="text, record">
+        <template v-for="d in record.companyAbbreviation">
+          <ellipsis :length="30" tooltip :key="d.id">{{ d.bdmsName }};</ellipsis>
+        </template>
+      </div>
       <div slot="payWay" slot-scope="text, record">
         {{ record.payWay | formatcompanyDict }}
       </div>
@@ -154,6 +159,17 @@
         </a-form-item>
 
         <a-form-item
+          label="公司简称"
+          hasFeedback
+        >
+          <a-input
+            placeholder="其他公司简称"
+            v-decorator="['companyAbbreviation', {rules: [{ required: true, message: '不能为空！'}, {min: 2, message: '不能少于2个字符'}, {max: 6, message: '不能多于6个字符'}]}]"
+            :allowClear="true"
+          />
+        </a-form-item>
+
+        <a-form-item
           label="付款方式"
           hasFeedback
         >
@@ -170,7 +186,7 @@
           hasFeedback
         >
           <a-input-number
-            placeholder="合同金额"
+            placeholder="请输入金额"
             v-decorator="['amountContract', {rules: [{ required: false }]}]"
             @change="onBusinessSelect"
           />
@@ -235,7 +251,7 @@ const companyDict = {
   'CG': '付钱出去'
 }
 
-const fields = ['contractId', 'organization', 'cooperateOrganization', 'payWay', 'amountContract', 'businessType', 'createDate']
+const fields = ['contractId', 'organization', 'cooperateOrganization', 'companyAbbreviation', 'payWay', 'amountContract', 'businessType', 'createDate']
 
 export default {
   name: 'TableList',
@@ -261,6 +277,10 @@ export default {
       {
         title: '合作公司',
         dataIndex: 'cooperateOrganization'
+      },
+      {
+        title: '公司简称',
+        dataIndex: 'companyAbbreviation'
       },
       {
         title: '付款方式',
@@ -398,7 +418,7 @@ export default {
       })
     },
     handleAdd () {
-      this.mdl = { 'id': 0, 'organization': null, 'cooperateOrganization': null, 'payWay': null, 'amountContract': 0, 'businessType': null, 'createDate': null }
+      this.mdl = { 'id': 0, 'organization': null, 'cooperateOrganization': null, 'companyAbbreviation': null, 'payWay': null, 'amountContract': 0, 'businessType': null, 'createDate': null }
       this.visible = true
       console.log(this.visible)
     },
