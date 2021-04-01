@@ -476,6 +476,9 @@ export function deleteContract (record) {
 
 // 创建或修改
 export function saveContract (record) {
+  if (!record.amountContract) {
+    record.amountContract = 0
+  }
   return request({
     url: record.id > 0 ? api.contract + record.id + '/' : api.contract,
     method: record.id > 0 ? 'patch' : 'post',

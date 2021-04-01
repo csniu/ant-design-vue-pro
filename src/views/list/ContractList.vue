@@ -420,6 +420,7 @@ export default {
     handleAdd () {
       this.mdl = { 'id': 0, 'organization': null, 'cooperateOrganization': null, 'companyAbbreviation': null, 'payWay': null, 'amountContract': 0, 'businessType': null, 'createDate': null }
       this.visible = true
+      this.businessTypeOptines = [{ 'value': '', 'label': '框架协议', 'disabled': false }]
       console.log(this.visible)
     },
     handleOk (e) {
