@@ -107,7 +107,7 @@ const vueConfig = {
     proxy: {
       '': {
         target: 'http://127.0.0.1:8000',
-        // target: 'http://192.168.135.10:9354/',
+//         target: 'http://192.168.135.10:9354/',
         ws: false,
         changeOrigin: true
       }
