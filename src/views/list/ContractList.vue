@@ -198,7 +198,7 @@
         >
           <a-select
             placeholder="请选择"
-            v-decorator="['businessType']"
+            v-decorator="['businessType', {rules: [{ required: true, message: '不能为空！'}]}]"
             :options="businessTypeOptines"
             :allowClear="true"
           />
