@@ -43,7 +43,7 @@
                   <a-select-option value="T">软件及IT业务</a-select-option>
                   <a-select-option value="E">设备业务</a-select-option>
                   <a-select-option value="O">其他业务</a-select-option>
-                  <a-select-option value="">框架协议</a-select-option>
+                  <a-select-option value="K">框架协议</a-select-option>
                 </a-select>
               </a-form-item>
             </a-col>
@@ -198,7 +198,7 @@
         >
           <a-select
             placeholder="请选择"
-            v-decorator="['businessType']"
+            v-decorator="['businessType', {rules: [{ required: true, message: '不能为空！'}]}]"
             :options="businessTypeOptines"
             :allowClear="true"
           />
@@ -239,7 +239,7 @@ const businessDict = {
   'T': '软件及IT业务',
   'E': '设备业务',
   'O': '其他业务',
-  '': '框架协议'
+  'K': '框架协议'
 }
 
 const companyDict = {
@@ -331,7 +331,7 @@ export default {
     ]
 
     return {
-      businessTypeOptines: [ { 'value': '', 'label': '框架协议', 'disabled': false } ],
+      businessTypeOptines: [ { 'value': 'K', 'label': '框架协议', 'disabled': false } ],
       businessTypeDefaultOptines: [
       { 'value': 'A', 'label': '科服业务', 'disabled': false },
       { 'value': 'H', 'label': '健康业务', 'disabled': false },
@@ -403,7 +403,7 @@ export default {
   methods: {
     onBusinessSelect (record) {
     if (!record) {
-      this.businessTypeOptines = [{ 'value': '', 'label': '框架协议', 'disabled': false }]
+      this.businessTypeOptines = [{ 'value': 'K', 'label': '框架协议', 'disabled': false }]
     } else {
       this.businessTypeOptines = this.businessTypeDefaultOptines
     }
