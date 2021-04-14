@@ -48,7 +48,7 @@
       </span>
       <span slot="content" slot-scope="text, record">
         <template v-if="record.typeof === 'text'">
-          {{ text }}
+          <ellipsis :length="60" tooltip>{{ text }}</ellipsis>
         </template>
         <template v-else>
           <a @click="handleDownlod(record)"> {{ text | getFilename }}</a>
@@ -121,10 +121,9 @@
           v-if="typeInput === 'text'"
         >
           <a-textarea
-            placeholder="请输入，最大长度 255"
             v-decorator="['text']"
             show-count
-            :max-length="255"
+            autosize
           />
         </a-form-item>
 
@@ -168,7 +167,7 @@
 
 <script>
 import pick from 'lodash.pick'
-import { STable } from '@/components'
+import { STable, Ellipsis } from '@/components'
 // eslint-disable-next-line no-unused-vars
 import { deleteStaticResource, getStaticResource, saveStaticResource, downloadFile } from '@/api/manage'
 
@@ -215,7 +214,8 @@ const fields = ['id', 'name', 'typeof', 'text']
 export default {
   name: 'TableList',
   components: {
-    STable
+    STable,
+    Ellipsis
   },
   data () {
     this.columns = columns
