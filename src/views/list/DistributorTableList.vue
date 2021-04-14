@@ -5,6 +5,11 @@
       <a-form layout="inline">
         <a-row :gutter="48">
           <a-col :md="8" :sm="24">
+            <a-form-item label="编号">
+              <a-input v-model="queryParam.bdmsNameEn" placeholder=""/>
+            </a-form-item>
+          </a-col>
+          <a-col :md="8" :sm="24">
             <a-form-item label="名称">
               <a-input v-model="queryParam.bdmsName" placeholder=""/>
             </a-form-item>
@@ -74,11 +79,21 @@
         </a-form-item>
 
         <a-form-item
+          label="编号"
+          hasFeedback
+        >
+          <a-input
+            placeholder="唯一编号"
+            v-decorator="['bdmsNameEn', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]"
+          />
+        </a-form-item>
+
+        <a-form-item
           label="全流程名称"
           hasFeedback
         >
           <a-input
-            placeholder="唯一性的名字"
+            placeholder="全流程经销商名"
             v-decorator="['bdmsName', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]"
           />
         </a-form-item>
@@ -133,6 +148,10 @@ const columns = [
     scopedSlots: { customRender: 'serial' }
   },
   {
+    title: '编号',
+    dataIndex: 'bdmsNameEn'
+  },
+  {
     title: '全流程名称',
     dataIndex: 'bdmsName'
   },
@@ -162,7 +181,7 @@ const columns = [
   }
 ]
 
-const fields = ['id', 'bdmsName', 'toEmailAddress', 'ccEmailAddress', 'fileTypes']
+const fields = ['id', 'bdmsNameEn', 'bdmsName', 'toEmailAddress', 'ccEmailAddress', 'fileTypes']
 
 export default {
   name: 'TableList',
