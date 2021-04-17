@@ -169,7 +169,7 @@
 import pick from 'lodash.pick'
 import { STable, Ellipsis } from '@/components'
 import { getReport, getTemplate, deleteReport, downloadFile, saveReport, makeReport, getReportVersion } from '@/api/manage'
-import { formatDate } from '../../utils/util.js'
+import { formatDate, getSampleId } from '../../utils/util.js'
 
 const columns = [
   {
@@ -276,6 +276,13 @@ export default {
       // 加载数据方法 必须为 Promise 对象
       loadData: parameter => {
         const requestParameters = Object.assign({}, parameter, this.queryParam)
+        if (requestParameters.sampleId) {
+          var sampleIds = getSampleId(requestParameters.sampleId)
+          if (sampleIds.includes(',')) {
+            requestParameters.sampleId = undefined
+            requestParameters.sampleId__in = sampleIds
+          }
+        }
         console.log('loadData request parameters:', requestParameters)
         return getReport(requestParameters)
           .then(res => {

@@ -96,3 +96,21 @@ export function formatDate (date, fmt) {
 function padLeftZero (str) {
   return ('00' + str).substr(str.length)
 };
+
+/**
+ * 返回样本编号或样本编号列表
+ * @param sampleId
+ */
+ export function getSampleId (sampleId) {
+  if (sampleId) {
+    var sampleIds = String(sampleId).trim()
+    if (!sampleIds) {
+      return undefined
+    } else {
+      sampleIds = sampleIds.split(' ').filter(word => word.length !== 0)
+      return sampleIds.join(',')
+    }
+  } else {
+    return sampleId
+  }
+};
