@@ -183,6 +183,11 @@ const columns = [
     scopedSlots: { customRender: 'time' }
   },
   {
+    title: '更新时间',
+    dataIndex: 'updataDate',
+    scopedSlots: { customRender: 'time' }
+  },
+  {
     title: '状态',
     dataIndex: 'status',
     scopedSlots: { customRender: 'status' }

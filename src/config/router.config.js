@@ -46,6 +46,13 @@ export const asyncRouterMap = [
         component: () => import('@/views/list/ContractList'),
         meta: { title: '合同管理', keepAlive: true, icon: 'read', permission: [ 'contract' ] }
       },
+      {
+        path: '/share/:pageNo([1-9]\\d*)?',
+        name: 'share',
+        hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+        component: () => import('@/views/list/Share'),
+        meta: { title: '数据分享', keepAlive: true, icon: 'share-alt', permission: [ 'share' ] }
+      },
       // 报告管理
       {
         path: '/report',

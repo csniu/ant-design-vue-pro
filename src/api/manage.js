@@ -20,7 +20,9 @@ const api = {
   staticResource: '/report/staticResource/',
   report: '/report/report/',
   reportRoot: '/report/',
-  contract: '/contract/'
+  contract: '/contract/',
+  share: '/share/samplefile/',
+  shareTask: '/share/task/'
 
 }
 
@@ -482,6 +484,30 @@ export function saveContract (record) {
   return request({
     url: record.id > 0 ? api.contract + record.id + '/' : api.contract,
     method: record.id > 0 ? 'patch' : 'post',
+    data: record
+  })
+}
+
+export function getSampleFile (record) {
+  return request({
+    url: api.share,
+    method: 'post',
+    data: record
+  })
+}
+
+export function packSampleFiles (record) {
+  return request({
+    url: api.shareTask,
+    method: 'post',
+    data: record
+  })
+}
+
+export function getPack (record) {
+  return request({
+    url: api.shareTask + record.taskId + '/',
+    method: 'get',
     data: record
   })
 }
