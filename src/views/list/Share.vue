@@ -110,7 +110,7 @@
           </div>
         </a-col>
         <a-col :md="4" :sm="24">
-          <a-button v-show="files.length !== 0" type="primary" @click="packFiles">打包文件</a-button>
+          <a-button v-show="files.length !== 0 && packStatus !== 'warning' && packStatus !== 'success'" type="primary" @click="packFiles">打包文件</a-button>
         </a-col>
         <a-col :md="3" :sm="24"></a-col>
       </a-row>
@@ -225,6 +225,7 @@ export default {
           this.visible = true
           this.searchVisible = false
           this.loading = false
+          this.packStatus = ''
         } else {
           getPack(requestParameters)
             .then(res => {
@@ -268,7 +269,7 @@ export default {
       if (totalSize === 0) {
         return ''
       }
-      if (totalSize > 10 * 1024 * 1024 * 1024) { // 10 G
+      if (totalSize > 50 * 1024 * 1024 * 1024) { // 50 G
         this.packStatus = 'warning'
       } else {
         packSampleFiles({ 'files': this.files }).then(res => {
