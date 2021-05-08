@@ -216,8 +216,6 @@ import { saveContract, getContract } from '@/api/manage'
 import { formatDate } from '../../utils/util.js'
 import user from '@/store/modules/user'
 
-const users = [ 'mlyuan', 'Twinkle', 'wangfei' ]
-
 function showUser () {
   if (user.state.isSuperuser) {
     return true
@@ -225,7 +223,7 @@ function showUser () {
   if (user.state.isAdmin) {
     return true
   }
-  if (users.includes(user.state.name)) {
+  if (user.state.roles.includes('powerUser')) {
     return true
   }
   return false

@@ -18,10 +18,10 @@
               <a-form-item>
                 <a-list :split="false">
                   <a-list-item :style="{ 'padding-top': '2px', 'padding-bottom': '2px' }" >
-                    <a-checkbox :defaultChecked="false" v-model="queryParam.fastq">Fastq 原始文件</a-checkbox>
+                    <a-checkbox :defaultChecked="false" :disabled="!powerUser" v-model="queryParam.fastq">Fastq 原始文件</a-checkbox>
                   </a-list-item>
                   <a-list-item :style="{ 'padding-top': '2px', 'padding-bottom': '2px' }" >
-                    <a-checkbox :defaultChecked="false" v-model="queryParam.bam">Bam 文件</a-checkbox>
+                    <a-checkbox :defaultChecked="false" :disabled="!powerUser" v-model="queryParam.bam">Bam 文件</a-checkbox>
                   </a-list-item>
                   <a-list-item :style="{ 'padding-top': '2px', 'padding-bottom': '2px' }" >
                     <a-checkbox :defaultChecked="false" v-model="queryParam.vcf">vcf 结果文件</a-checkbox>
@@ -142,6 +142,7 @@
 import { Ellipsis } from '@/components'
 import { getSampleFile, packSampleFiles, getPack } from '@/api/manage'
 import { formatDate } from '../../utils/util.js'
+import user from '@/store/modules/user'
 
 const TYPES = {
     'R1': 'Fastq R1',
@@ -158,12 +159,29 @@ const TYPES = {
     'word': 'Report Word'
 }
 
+function isPowerUser () {
+  console.log(user.state.isSuperuser)
+  console.log(user.state.isAdmin)
+  console.log(user.state.roles)
+  if (user.state.isSuperuser) {
+    return true
+  }
+  if (user.state.isAdmin) {
+    return true
+  }
+  if (user.state.roles.includes('powerUser')) {
+    return true
+  }
+  return false
+}
+
 export default {
   name: 'Share',
   components: {
     Ellipsis
   },
   data () {
+    this.powerUser = isPowerUser()
     return {
       visible: false,
       searchVisible: false,
