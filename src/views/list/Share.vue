@@ -87,17 +87,20 @@
                 show-icon
               >
                 <p slot="description">
-                  任务提交成功，任务ID为 <span style="color: red">{{ packInfo.id }}</span> 。 该ID为查询任务状态使用，请保存。
+                  任务提交成功(共{{ totalSize }})，任务ID为 <span style="color: red">{{ packInfo.id }}</span> 。 该ID为查询任务状态使用，请保存。
                 </p>
               </a-alert>
             </div>
             <div v-show="packStatus === 'warning'">
               <a-alert
                 message="Warning"
-                description="文件太大，请使用硬盘拷贝！"
                 type="warning"
                 show-icon
-              />
+              >
+                <p slot="description">
+                  文件太大({{ totalSize }})，请使用硬盘拷贝！
+                </p>
+              </a-alert>
             </div>
             <div v-show="packStatus === 'error'">
               <a-alert
@@ -110,7 +113,9 @@
           </div>
         </a-col>
         <a-col :md="4" :sm="24">
-          <a-button v-show="files.length !== 0 && packStatus !== 'warning' && packStatus !== 'success'" type="primary" @click="packFiles">打包文件</a-button>
+          <div v-show="files.length !== 0 && packStatus !== 'warning' && packStatus !== 'success'">
+            <a-button :title="totalSize" type="primary" @click="packFiles">打包文件</a-button>
+          </div>
         </a-col>
         <a-col :md="3" :sm="24"></a-col>
       </a-row>
@@ -122,7 +127,11 @@
           该任务由 <span style="color: blue">{{ packInfo.user }}</span> 于 <span style="color: blue">{{ packInfo.create_date | formatDate }}</span> 创建。
         </p>
         <p v-if="packInfo.url" :style="{ 'text-align': 'center', 'font-size': 'x-large' }">
-          下载链接：<span style="color: red">{{ packInfo.url }}</span>
+          打包完成共计 {{ totalSize }}，你可
+          <a :href="packInfo.url">点击下载</a>
+          ，或
+          <a @click="doCopy" href="#" style="color: #1890ff">复制分享</a>
+          ，链接7天有效。
         </p>
         <p v-else :style="{ 'text-align': 'center', 'font-size': 'x-large' }">
           文件<span style="color: red">正在打包</span>，请耐心等待！
@@ -132,14 +141,17 @@
 
     <a-card style="margin-top: 24px;" :bordered="false" v-show="!searchVisible && !visible">
       <div style="text-align: center;">
-        <img src="~@/assets/Matchstick-Men.gif" style="margin: 0 auto;">
+        <img src="~@/assets/Matchstick-Men.gif" style="margin: 0 auto;"/>
       </div>
     </a-card>
+
+    <backtop/>
   </div>
 </template>
 
 <script>
 import { Ellipsis } from '@/components'
+import { BackTop } from 'ant-design-vue'
 import { getSampleFile, packSampleFiles, getPack } from '@/api/manage'
 import { formatDate } from '../../utils/util.js'
 import user from '@/store/modules/user'
@@ -178,7 +190,8 @@ function isPowerUser () {
 export default {
   name: 'Share',
   components: {
-    Ellipsis
+    Ellipsis,
+    'backtop': BackTop
   },
   data () {
     this.powerUser = isPowerUser()
@@ -192,7 +205,8 @@ export default {
       confirmLoading: false,
       queryParam: {},
       data: [],
-      files: []
+      files: [],
+      totalSize: 0
     }
   },
   filters: {
@@ -236,6 +250,15 @@ export default {
                     this.files.push(fileInfo)
                   }
                 }
+              var totalBit = 0
+              for (let i = 0; i < this.files.length; i++) {
+                totalBit = totalBit + this.files[i].size
+              }
+              if (totalBit < 1024 * 1024 * 1024) {
+                this.totalSize = (totalBit / (1024 * 1024)).toFixed(2) + 'M'
+              } else {
+                this.totalSize = (totalBit / (1024 * 1024 * 1024)).toFixed(2) + 'G'
+              }
               }
             }).catch(res => {
               this.$message.error('查询失败，请稍后再试。')
@@ -250,11 +273,17 @@ export default {
               this.searchVisible = true
               this.visible = false
               this.packInfo = res.data
+              if (this.packInfo.totalSize < 1024 * 1024 * 1024) {
+                this.totalSize = (this.packInfo.totalSize / (1024 * 1024)).toFixed(2) + 'M'
+              } else {
+                this.totalSize = (this.packInfo.totalSize / (1024 * 1024 * 1024)).toFixed(2) + 'G'
+              }
             }).catch(res => {
               if (res.response.data.detail === '未找到。') {
                 this.$message.error('ID 不存在！')
               } else {
                 this.$message.error('查询失败，请稍后再试。')
+                console.log(res)
               }
             })
           this.loading = false
@@ -280,14 +309,19 @@ export default {
       this.searchVisible = false
     },
     packFiles () {
-      var totalSize = 0
+      var totalBit = 0
       for (let i = 0; i < this.files.length; i++) {
-        totalSize = totalSize + this.files[i].size
+        totalBit = totalBit + this.files[i].size
       }
-      if (totalSize === 0) {
+      if (totalBit < 1024 * 1024 * 1024) {
+        this.totalSize = (totalBit / (1024 * 1024)).toFixed(2) + 'M'
+      } else {
+        this.totalSize = (totalBit / (1024 * 1024 * 1024)).toFixed(2) + 'G'
+      }
+      if (totalBit === 0) {
         return ''
       }
-      if (totalSize > 50 * 1024 * 1024 * 1024) { // 50 G
+      if (totalBit > 50 * 1024 * 1024 * 1024) { // 50 G
         this.packStatus = 'warning'
       } else {
         packSampleFiles({ 'files': this.files }).then(res => {
@@ -302,6 +336,21 @@ export default {
           this.packInfo = res.response.data
         })
       }
+    },
+    doCopy () {
+      const updateTime = new Date(this.packInfo.updata_date)
+      const timeValidity = formatDate(new Date(updateTime.setDate(updateTime.getDate() + 7)), 'yyyy-MM-dd hh:mm:ss')
+      const text = `
+下载链接: ${this.packInfo.url}
+链接有效期截止至 ${timeValidity}，请及时下载。
+`
+      this.$copyText(text).then(message => {
+        console.log('copy', message)
+        this.$message.success('复制完毕')
+      }).catch(err => {
+        console.log('copy.err', err)
+        this.$message.error('复制失败')
+      })
     }
   }
 }
