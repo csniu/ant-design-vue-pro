@@ -67,7 +67,8 @@
                     :disabled="f.local_path === 'loss'"
                     @change="onChange($event, item.sample_id, f)">
                     <span :style="{ 'font-weight': 'bold' }">{{ f.typeof | statusFilter }}: </span>
-                    <span v-if="f.local_path === 'loss'" :style="{ 'color': 'red' }">文件缺失！</span>
+                    <span v-if="f.local_path === 'loss'" :style="{ 'color': 'red' }">文件缺失</span>
+                    <span v-else-if="f.repetitive" :style="{ 'color': 'red' }">{{ f.local_path }}</span>
                     <span v-else>{{ f.local_path }}</span>
                   </a-checkbox>
                 </p>
@@ -240,11 +241,21 @@ export default {
               console.log(res)
               this.data = res.data
               this.files = []
+
               for (let i = 0; i < this.data.length; i++) {
                 const sampleId = this.data[i].sample_id
                 const sampleFiles = this.data[i].files
-                for (let i = 0; i < sampleFiles.length; i++) {
-                  const fileInfo = sampleFiles[i]
+                const sampleFileTypes = []
+
+                for (let j = 0; j < sampleFiles.length; j++) {
+                  const fileInfo = sampleFiles[j]
+                  // 相同文件类型重复
+                  if (sampleFileTypes.includes(fileInfo.typeof)) {
+                    this.data[i].files[j].repetitive = true
+                  } else {
+                    sampleFileTypes.push(fileInfo.typeof)
+                  }
+
                   fileInfo.sample_id = sampleId
                   if (fileInfo.local_path !== 'loss') {
                     this.files.push(fileInfo)
