@@ -285,11 +285,11 @@ export default {
               // R1 R2
               for (var ii = 0; ii < item.files.length; ii++) {
                 var fileInfo = item.files[ii]
-                if (fileInfo.rename.toString().includes('R1')) {
+                if (fileInfo.rename.toString().includes('R1.fastq.gz')) {
                   item.r1File = fileInfo.remotePath
                   item.r1Md5 = fileInfo.md5
                 } else {
-                  if (fileInfo.rename.toString().includes('R2')) {
+                  if (fileInfo.rename.toString().includes('R2.fastq.gz')) {
                     item.r2File = fileInfo.remotePath
                     item.r2Md5 = fileInfo.md5
                   }
