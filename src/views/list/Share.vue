@@ -106,7 +106,7 @@
             <div v-show="packStatus === 'error'">
               <a-alert
                 message="Error"
-                description="提交失败,请联系管理员！"
+                description="提交失败,请稍后再试！"
                 type="error"
                 show-icon
               />
@@ -134,6 +134,7 @@
           <a @click="doCopy" href="#" style="color: #1890ff">复制分享</a>
           ，链接7天有效。
         </p>
+        <p v-else-if="packInfo.errorMessage" :style="{ 'text-align': 'center', 'font-size': 'x-large' }">文件打包<span style="color: red">失败</span>，请联系管理员。</p>
         <p v-else :style="{ 'text-align': 'center', 'font-size': 'x-large' }">
           文件<span style="color: red">正在打包</span>，请耐心等待！
         </p>
