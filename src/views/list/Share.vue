@@ -129,7 +129,7 @@
         </p>
         <p v-if="packInfo.url" :style="{ 'text-align': 'center', 'font-size': 'x-large' }">
           打包完成共计 {{ totalSize }}，你可
-          <a :href="packInfo.url">点击下载</a>
+          <a :href="packInfo.url" target="_blank">点击下载</a>
           ，或
           <a @click="doCopy" href="#" style="color: #1890ff">复制分享</a>
           ，链接7天有效。
