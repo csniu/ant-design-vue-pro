@@ -272,12 +272,12 @@ export default {
                 this.totalSize = (totalBit / (1024 * 1024 * 1024)).toFixed(2) + 'G'
               }
               }
+              this.loading = false
             }).catch(res => {
               this.$message.error('查询失败，请稍后再试。')
             })
           this.visible = true
           this.searchVisible = false
-          this.loading = false
           this.packStatus = ''
         } else {
           getPack(requestParameters)
@@ -290,6 +290,7 @@ export default {
               } else {
                 this.totalSize = (this.packInfo.totalSize / (1024 * 1024 * 1024)).toFixed(2) + 'G'
               }
+              this.loading = false
             }).catch(res => {
               if (res.response.data.detail === '未找到。') {
                 this.$message.error('ID 不存在！')
@@ -298,7 +299,6 @@ export default {
                 console.log(res)
               }
             })
-          this.loading = false
         }
     },
     onChange (e, sampleId, fileInfo) {
