@@ -79,17 +79,24 @@
         {{ text | formatDate }}
       </span>
       <span slot="filePath" slot-scope="text, record">
-        <a @click="handleDownlod(record)"> {{ text | getFilename }}</a>
+        <a @click="handleDownlod(record)"><ellipsis :length="20">下载</ellipsis></a>
       </span>
       <div slot="distributor" slot-scope="text, record">
         <template v-for="d in record.distributor">
-          <ellipsis :length="30" tooltip :key="d.id">{{ d.bdmsName }};</ellipsis>
+          <p :key="d.id" style="margin-bottom: 2px">
+            <ellipsis :length="20" tooltip :key="d.id">{{ d.bdmsName }};</ellipsis>
+          </p>
         </template>
       </div>
       <div slot="reportVersion" slot-scope="text, record">
         <template v-for="r in record.reportVersion">
-          <ellipsis :length="30" tooltip :key="r.id">{{ r.bdmsName }}</ellipsis>
+          <p :key="r.id" style="margin-bottom: 2px">
+            <ellipsis :length="20" tooltip :key="r.id">{{ r.bdmsName }}</ellipsis>
+          </p>
         </template>
+      </div>
+      <div slot="dataFunc" slot-scope="text">
+        <ellipsis :length="20" tooltip>{{ text }}</ellipsis>
       </div>
       <div slot="isActive" slot-scope="text">
         <span v-if="text === true">是</span>
