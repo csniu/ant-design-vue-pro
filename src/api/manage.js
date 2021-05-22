@@ -17,7 +17,8 @@ const api = {
   reportVersion: '/report/reportVersion/',
   distributor: '/report/distributor/',
   template: '/report/template/',
-  staticResource: '/report/staticResource/',
+  configServer: '/report/config-server/',
+  configValue: '/report/config-value/',
   report: '/report/report/',
   reportRoot: '/report/',
   contract: '/contract/',
@@ -280,32 +281,51 @@ export function deleteGene (record) {
   })
 }
 
-export function getStaticResource (parameter) {
+export function getConfigServer (parameter) {
   return request({
-    url: api.staticResource,
+    url: api.configServer,
     method: 'get',
     params: parameter
   })
 }
 
-export function deleteStaticResource (record) {
+export function deleteConfigServer (record) {
   return request({
-    url: api.staticResource + record.id + '/',
+    url: api.configServer + record.id + '/',
     method: 'delete',
     data: record
   })
 }
 
-export function saveStaticResource (record, id = 0) {
+export function saveConfigServer (record) {
   return request({
-    url: id > 0 ? api.staticResource + id + '/' : api.staticResource,
-    method: id > 0 ? 'patch' : 'post',
-    data: record,
-    contentType: false,
-    processData: false,
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+    url: record.id > 0 ? api.configServer + record.id + '/' : api.configServer,
+    method: record.id > 0 ? 'patch' : 'post',
+    data: record
+  })
+}
+
+export function getConfigValue (parameter) {
+  return request({
+    url: api.configValue,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function deleteConfigValue (record) {
+  return request({
+    url: api.configValue + record.id + '/',
+    method: 'delete',
+    data: record
+  })
+}
+
+export function saveConfigValue (record) {
+  return request({
+    url: record.id > 0 ? api.configValue + record.id + '/' : api.configValue,
+    method: record.id > 0 ? 'patch' : 'post',
+    data: record
   })
 }
 

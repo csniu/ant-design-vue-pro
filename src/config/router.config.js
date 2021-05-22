@@ -89,13 +89,13 @@ export const asyncRouterMap = [
             component: () => import('@/views/list/ReportVersionTableList'),
             meta: { title: '报告版本管理', keepAlive: true, icon: 'read', permission: [ 'reportVersion' ] }
           },
-          {
-            path: '/report/genelist/:pageNo([1-9]\\d*)?',
-            name: 'genelist',
-            hideChildrenInMenu: true,
-            component: () => import('@/views/list/GeneListTableListDetail'),
-            meta: { title: '基因列表', keepAlive: true, icon: 'bars', permission: [ 'genelist' ] }
-          },
+          // {
+          //   path: '/report/genelist/:pageNo([1-9]\\d*)?',
+          //   name: 'genelist',
+          //   hideChildrenInMenu: true,
+          //   component: () => import('@/views/list/GeneListTableListDetail'),
+          //   meta: { title: '基因列表', keepAlive: true, icon: 'bars', permission: [ 'genelist' ] }
+          // },
           {
             path: '/report/backup/:pageNo([1-9]\\d*)?',
             name: 'backup',
@@ -104,11 +104,11 @@ export const asyncRouterMap = [
             meta: { title: '报告备份', keepAlive: true, icon: 'read', permission: [ 'backup' ] }
           },
           {
-            path: '/report/static/:pageNo([1-9]\\d*)?',
+            path: '/report/configServer/:pageNo([1-9]\\d*)?',
             name: 'static',
             hideChildrenInMenu: true,
-            component: () => import('@/views/list/StaticFileTableList'),
-            meta: { title: '其他配置', keepAlive: true, icon: 'read', permission: [ 'static' ] }
+            component: () => import('@/views/list/ConfigServer'),
+            meta: { title: '配置中心', keepAlive: true, icon: 'read', permission: [ 'configServer' ] }
           }
         ]
       },
