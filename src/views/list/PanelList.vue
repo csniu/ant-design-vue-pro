@@ -5,19 +5,16 @@
       <a-form layout="inline">
         <a-row :gutter="48">
           <a-col :md="8" :sm="24">
-            <a-form-item label="名称">
+            <a-form-item label="编号">
               <a-input v-model="queryParam.name" placeholder=""/>
             </a-form-item>
           </a-col>
           <a-col :md="8" :sm="24">
-            <a-form-item label="启用">
-              <a-select placeholder="全部" v-model="queryParam.isActive" :allowClear="true">
-                <a-select-option value="true">是</a-select-option>
-                <a-select-option value="false">否</a-select-option>
-              </a-select>
+            <a-form-item label="名称">
+              <a-input v-model="queryParam.name_ch" placeholder=""/>
             </a-form-item>
           </a-col>
-          <a-col :md="8" :sm="24">
+          <a-col :md="!advanced && 8 || 24" :sm="24">
             <span class="table-page-search-submitButtons" :style="advanced && { float: 'right', overflow: 'hidden' } || {} ">
               <a-button type="primary" @click="$refs.table.refresh(true)">查询</a-button>
               <a-button style="margin-left: 8px" @click="() => this.queryParam = {}">重置</a-button>
@@ -49,12 +46,6 @@
       <span slot="time" slot-scope="text">
         {{ text | formatDate }}
       </span>
-      <span slot="filePath" slot-scope="text, record">
-        <a @click="handleDownlod(record)"><ellipsis :length="20">下载</ellipsis></a>
-      </span>
-      <span slot="isActive" slot-scope="text">
-        <a-tag :color="text? 'blue': 'orange'">{{ text|filterStatus }}</a-tag>
-      </span>
       <span slot="action" slot-scope="text, record">
         <template>
           <a @click="handleEdit(record)">修改</a>
@@ -85,33 +76,23 @@
         </a-form-item>
 
         <a-form-item
-          label="名称"
+          label="编号"
           hasFeedback
         >
           <a-input
-            placeholder="唯一性的名字"
+            placeholder=""
             v-decorator="['name', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]"
           />
         </a-form-item>
 
-        <a-form-item label="启用">
-          <a-switch v-decorator="['isActive', {valuePropName: 'checked', initialValue: mdl.isActive }]"/>
-        </a-form-item>
-
         <a-form-item
+          label="名称"
           hasFeedback
-          label="文件"
         >
-          <a-upload
-            name="file"
-            :multiple="false"
-            :before-upload="beforeUpload"
-            :file-list="fileList"
-            @change="uploadChange"
-          >
-            <a-button icon="upload">选择文件</a-button>
-            <p v-if="mdl.filePath">{{ mdl.filePath | getFilename }}</p>
-          </a-upload>
+          <a-input
+            placeholder=""
+            v-decorator="['name_ch', {rules: []}]"
+          />
         </a-form-item>
 
       </a-form>
@@ -123,7 +104,7 @@
 <script>
 import pick from 'lodash.pick'
 import { STable, Ellipsis } from '@/components'
-import { getTemplate, saveTemplate, deleteTemplate, downloadFile } from '@/api/manage'
+import { getPanel, savePanel, deletePanel } from '@/api/manage'
 import { formatDate } from '../../utils/util.js'
 
 const columns = [
@@ -132,18 +113,12 @@ const columns = [
     scopedSlots: { customRender: 'serial' }
   },
   {
-    title: '名称',
+    title: '编号',
     dataIndex: 'name'
   },
   {
-    title: '启用',
-    dataIndex: 'isActive',
-    scopedSlots: { customRender: 'isActive' }
-  },
-  {
-    title: '文件',
-    dataIndex: 'filePath',
-    scopedSlots: { customRender: 'filePath' }
+    title: '名称',
+    dataIndex: 'name_ch'
   },
   {
     title: '修改时间',
@@ -157,7 +132,7 @@ const columns = [
   }
 ]
 
-const fields = ['id', 'name', 'isActive']
+const fields = ['id', 'name', 'name_ch']
 
 export default {
   name: 'TableList',
@@ -176,13 +151,11 @@ export default {
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 16 }
+        sm: { span: 13 }
       }
     }
     return {
       form: this.$form.createForm(this),
-      file: null,
-      fileList: [],
       // create model
       visible: false,
       confirmLoading: false,
@@ -195,7 +168,7 @@ export default {
       loadData: parameter => {
         const requestParameters = Object.assign({}, parameter, this.queryParam)
         console.log('loadData request parameters:', requestParameters)
-        return getTemplate(requestParameters)
+        return getPanel(requestParameters)
           .then(res => {
             console.log(res)
             return res.data
@@ -209,20 +182,7 @@ export default {
     formatDate (time) {
         var date = new Date(time)
         return formatDate(date, 'MM/dd hh:mm')
-      },
-    getFilename (path) {
-      if (path !== null) {
-        return path.split(/\\|\//).pop()
-        }
-      return path
-      },
-    filterStatus (k) {
-      if (k) {
-        return '启用'
-      } else {
-        return '禁用'
       }
-    }
   },
   computed: {
     rowSelection () {
@@ -244,7 +204,7 @@ export default {
       })
     },
     handleAdd () {
-      this.mdl = { 'id': 0, 'isActive': false }
+      this.mdl = { 'id': 0 }
       this.visible = true
     },
     handleOk (e) {
@@ -252,18 +212,10 @@ export default {
       this.confirmLoading = true
       this.form.validateFields((errors, values) => {
       if (!errors) {
-        console.log('values', values)
-
-        var formData = new FormData()
-        formData.append('name', values.name)
-        formData.append('isActive', JSON.stringify(values.isActive))
-        if (this.file) {
-          formData.append('filePath', this.file)
-        }
-
+        console.log(values)
         if (values.id > 0) {
           // 修改
-          saveTemplate(formData, values.id).then(res => {
+          savePanel(values).then(res => {
             this.visible = false
             this.confirmLoading = false
             // 重置表单数据
@@ -275,7 +227,7 @@ export default {
           })
         } else {
           // 新增
-          saveTemplate(formData, values.id).then(res => {
+          savePanel(values).then(res => {
             this.visible = false
             this.confirmLoading = false
             // 重置表单数据
@@ -286,17 +238,17 @@ export default {
             this.$message.info('创建成功')
           })
         }
-      this.confirmLoading = false
       }
-      this.fileList = []
-      this.file = null
+      this.confirmLoading = false
       })
     },
     handleCancel () {
       this.visible = false
-      this.fileList = []
-      this.file = null
       this.form.resetFields() // 清理表单数据（可不做）
+    },
+    onSelectChange (selectedRowKeys, selectedRows) {
+      this.selectedRowKeys = selectedRowKeys
+      this.selectedRows = selectedRows
     },
     toggleAdvanced () {
       this.advanced = !this.advanced
@@ -304,42 +256,11 @@ export default {
     handleDelete (record) {
       console.log('handleDelete')
       this.confirmLoading = true
-      deleteTemplate(record).then(res => {
+      deletePanel(record).then(res => {
         this.confirmLoading = false
         this.$refs.table.refresh()
         this.$message.info('删除成功')
       })
-    },
-    handleDownlod (record) {
-      console.log(record)
-      const serverPath = record.filePath
-      const filename = serverPath.toString().split(/\\|\//).pop()
-      if (serverPath) {
-        downloadFile({ 'abspath': serverPath }, filename).then(res => {
-          this.confirmLoading = false
-          this.$message.info('下载成功')
-        }).catch(res => {
-          console.log(res)
-          this.$message.info('下载失败')
-        })
-      }
-    },
-    beforeUpload (file) {
-      const reader = new FileReader()
-      // 转化为blob
-      reader.readAsArrayBuffer(file)
-      reader.onload = () => {
-        // this.fileBlob = reader.result
-        this.file = file
-      }
-      return false
-    },
-    uploadChange (info) {
-      console.log(info)
-      // 只能上传一个
-      let fileList = [...info.fileList]
-      fileList = fileList.slice(-1)
-      this.fileList = fileList
     }
   }
 }

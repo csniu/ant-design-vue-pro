@@ -95,26 +95,6 @@
           />
         </a-form-item>
 
-        <a-form-item
-          label="PANEL"
-          hasFeedback
-        >
-          <a-input
-            placeholder="检测 panel"
-            v-decorator="['panel', {rules: []}]"
-          />
-        </a-form-item>
-
-        <a-form-item
-          label="基因列表"
-          hasFeedback
-        >
-          <a-input
-            placeholder="基因列表名"
-            v-decorator="['genelist', {rules: []}]"
-          />
-        </a-form-item>
-
       </a-form>
     </a-modal>
 
@@ -141,14 +121,6 @@ const columns = [
     dataIndex: 'bdmsNameEn'
   },
   {
-    title: 'PANEL',
-    dataIndex: 'panel'
-  },
-  {
-    title: '基因列表',
-    dataIndex: 'genelist'
-  },
-  {
     title: '修改时间',
     dataIndex: 'updataDate',
     scopedSlots: { customRender: 'time' }
@@ -160,7 +132,7 @@ const columns = [
   }
 ]
 
-const fields = ['id', 'bdmsName', 'bdmsNameEn', 'panel', 'genelist']
+const fields = ['id', 'bdmsName', 'bdmsNameEn']
 
 export default {
   name: 'TableList',

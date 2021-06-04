@@ -65,6 +65,9 @@
       showPagination="auto"
       tableLayout="auto"
     >
+      <span slot="serial" slot-scope="text, record, index">
+        {{ index + 1 }}
+      </span>
       <span slot="cls" slot-scope="text">
         {{ text | trueFilter }}
       </span>
@@ -152,7 +155,9 @@
           label="分类"
         >
           <a-select
-            v-decorator="['optionClassify', {initialValue: mdl.classifyValue}]"
+            v-decorator="[
+              'optionClassify',
+              {rules: [{ required: true, message: '不能为空！'}], initialValue: mdl.classifyValue}]"
             @change="handleChange"
             @select="handleSelect"
             mode="tags"
@@ -348,7 +353,11 @@ export default {
       e.preventDefault()
       this.confirmLoading = true
       this.form.validateFields((errors, values) => {
-        console.log(errors, values)
+        console.log('error', errors, values)
+
+        if (typeof values.optionClassify === 'undefined') {
+          values.optionClassify = []
+        }
 
         values.snv = values.optionClassify.includes('snv')
         values.indel = values.optionClassify.includes('indel')
@@ -385,6 +394,7 @@ export default {
             })
           }
         } else {
+          console.log('values', values)
           this.confirmLoading = false
         }
       })

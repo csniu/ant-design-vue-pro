@@ -85,6 +85,9 @@
       <span slot="reportVersion" slot-scope="text">
         {{ reportVersionComputed(text) }}
       </span>
+      <span slot="template" slot-scope="text">
+        {{ template(text) }}
+      </span>
       <span slot="action" slot-scope="text, record">
         <template>
           <a @click="handleEdit(record)">重新生成</a>
@@ -142,9 +145,12 @@
           label="报告版本"
           hasFeedback
         >
-          <a-input
-            placeholder="全流程报告版本编号"
+          <a-select
+            show-search
+            :filter-option="false"
+            placeholder="请选择"
             v-decorator="['reportVersion', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]"
+            :options="reportVersions"
           />
         </a-form-item>
 
@@ -153,9 +159,12 @@
           hasFeedback
         >
           <a-select
+            show-search
+            :filter-option="false"
             placeholder="请选择"
             v-decorator="['template', {rules: []}]"
-            :options="templates"
+            :options="optTemplates"
+            @search="(v) => this.optTemplates = this.templates.filter(r => r.title.includes(v))"
           />
         </a-form-item>
 
@@ -200,7 +209,8 @@ const columns = [
   },
   {
     title: '报告模板',
-    dataIndex: 'template'
+    dataIndex: 'template',
+    scopedSlots: { customRender: 'template' }
   },
   {
     title: '状态',
@@ -264,6 +274,7 @@ export default {
     return {
       form: this.$form.createForm(this),
       templates: [],
+      optTemplates: [],
       reportVersions: [],
       // create model
       visible: false,
@@ -349,7 +360,18 @@ export default {
           return ss[0].label
         }
       }
-    }
+    },
+
+    template () {
+      return function (key) {
+          const ss = this.templates.filter(r => r.key === String(key))
+          if (ss.length === 0) {
+            return key
+          } else {
+            return ss[0].title
+          }
+        }
+      }
   },
   created () {
     // 足够大的数字，不分页
@@ -358,8 +380,9 @@ export default {
         console.log('getTemplate', res)
         for (let i = 0, len = res.data.results.length; i < len; i++) {
           var tmp = res.data.results[i]
-          this.templates.push({ 'value': tmp.name, 'label': tmp.name })
+          this.templates.push({ 'key': tmp.id.toString(), 'title': tmp.name, 'disabled': !tmp.isActive })
         }
+        this.optTemplates = [...this.templates]
         console.log('template', this.templates)
       })
       .catch((res) => {

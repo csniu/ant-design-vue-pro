@@ -39,13 +39,13 @@ export const asyncRouterMap = [
         component: () => import('@/views/list/AnalysisTableList'),
         meta: { title: '分析状态', keepAlive: true, icon: 'radar-chart', permission: [ 'analysis' ] }
       },
-      {
-        path: '/contract/:pageNo([1-9]\\d*)?',
-        name: 'contract',
-        hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
-        component: () => import('@/views/list/ContractList'),
-        meta: { title: '合同管理', keepAlive: true, icon: 'read', permission: [ 'contract' ] }
-      },
+      // {
+      //   path: '/contract/:pageNo([1-9]\\d*)?',
+      //   name: 'contract',
+      //   hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+      //   component: () => import('@/views/list/ContractList'),
+      //   meta: { title: '合同管理', keepAlive: true, icon: 'read', permission: [ 'contract' ] }
+      // },
       {
         path: '/share/:pageNo([1-9]\\d*)?',
         name: 'share',
@@ -69,46 +69,69 @@ export const asyncRouterMap = [
             meta: { title: '生成记录', keepAlive: true, icon: 'read', permission: [ 'report' ] }
           },
           {
-            path: '/report/template/:pageNo([1-9]\\d*)?',
-            name: 'Template',
+            path: '/report/distributor-report/:pageNo([1-9]\\d*)?',
+            name: 'distributorReport',
+            hideChildrenInMenu: true,
+            component: () => import('@/views/list/DistributorReport'),
+            meta: { title: '经销商报告版本管理', keepAlive: true, icon: 'appstore', permission: [ 'distributorReport' ] }
+          }
+          // {
+          //   path: '/report/backup/:pageNo([1-9]\\d*)?',
+          //   name: 'backup',
+          //   hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+          //   component: () => import('@/views/list/ReportTableList'),
+          //   meta: { title: '报告备份', keepAlive: true, icon: 'read', permission: [ 'backup' ] }
+          // }
+        ]
+      },
+      {
+        path: '/config',
+        name: 'config',
+        component: PageView,
+        meta: { title: '配置中心', icon: 'setting', permission: [ 'config' ] },
+        redirect: '/config/report/',
+        children: [
+          {
+            path: '/config/template/:pageNo([1-9]\\d*)?',
+            name: 'TemplateConfig',
             hideChildrenInMenu: true,
             component: () => import('@/views/list/TemplateTableList'),
-            meta: { title: '模板管理', keepAlive: true, icon: 'read', permission: [ 'template' ] }
+            meta: { title: '模板管理', keepAlive: true, icon: 'bars', permission: [ 'template' ] }
           },
           {
-            path: '/report/distributor/:pageNo([1-9]\\d*)?',
+            path: '/config/reportVersion/:pageNo([1-9]\\d*)?',
+            name: 'reportVersionConfig',
+            hideChildrenInMenu: true,
+            component: () => import('@/views/list/ReportVersionTableList'),
+            meta: { title: '报告版本管理', keepAlive: true, icon: 'bars', permission: [ 'reportVersion' ] }
+          },
+          {
+            path: '/config/distributor/:pageNo([1-9]\\d*)?',
             name: 'distributor',
             hideChildrenInMenu: true,
             component: () => import('@/views/list/DistributorTableList'),
-            meta: { title: '经销商管理', keepAlive: true, icon: 'read', permission: [ 'distributor' ] }
+            meta: { title: '经销商管理', keepAlive: true, icon: 'bars', permission: [ 'distributor' ] }
           },
           {
-            path: '/report/reportVersion/:pageNo([1-9]\\d*)?',
-            name: 'reportVersion',
+            path: '/config/panel/:pageNo([1-9]\\d*)?',
+            name: 'panleConfig',
             hideChildrenInMenu: true,
-            component: () => import('@/views/list/ReportVersionTableList'),
-            meta: { title: '报告版本管理', keepAlive: true, icon: 'read', permission: [ 'reportVersion' ] }
-          },
-          // {
-          //   path: '/report/genelist/:pageNo([1-9]\\d*)?',
-          //   name: 'genelist',
-          //   hideChildrenInMenu: true,
-          //   component: () => import('@/views/list/GeneListTableListDetail'),
-          //   meta: { title: '基因列表', keepAlive: true, icon: 'bars', permission: [ 'genelist' ] }
-          // },
-          {
-            path: '/report/backup/:pageNo([1-9]\\d*)?',
-            name: 'backup',
-            hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
-            component: () => import('@/views/list/ReportTableList'),
-            meta: { title: '报告备份', keepAlive: true, icon: 'read', permission: [ 'backup' ] }
+            component: () => import('@/views/list/PanelList'),
+            meta: { title: 'Panel管理', keepAlive: true, icon: 'bars', permission: [ 'panleConfig' ] }
           },
           {
-            path: '/report/configServer/:pageNo([1-9]\\d*)?',
-            name: 'static',
+            path: '/config/genelist/:pageNo([1-9]\\d*)?',
+            name: 'genelistConfig',
+            hideChildrenInMenu: true,
+            component: () => import('@/views/list/GeneListTableListDetail'),
+            meta: { title: '基因列表', keepAlive: true, icon: 'bars', permission: [ 'genelist' ] }
+          },
+          {
+            path: '/config/configServer/:pageNo([1-9]\\d*)?',
+            name: 'staticConfig',
             hideChildrenInMenu: true,
             component: () => import('@/views/list/ConfigServer'),
-            meta: { title: '配置中心', keepAlive: true, icon: 'read', permission: [ 'configServer' ] }
+            meta: { title: '其他配置', keepAlive: true, icon: 'bars', permission: [ 'configServer' ] }
           }
         ]
       },
@@ -124,7 +147,7 @@ export const asyncRouterMap = [
             path: '/manage/user-list',
             name: 'userList',
             component: () => import('@/views/other/UserList'),
-            meta: { title: '用户', keepAlive: true, icon: 'user', permission: [ 'userList' ] }
+            meta: { title: '用户', keepAlive: true, icon: 'user', permission: [ 'userMange' ] }
           },
           {
             path: '/manage/role-list',

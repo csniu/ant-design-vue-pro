@@ -14,12 +14,15 @@ const api = {
   genelist: '/report/genelist/',
   geneClassify: '/report/gene-classify/',
   genelistFile: '/report/genelist-file/',
+  genelistSummary: '/report/genelist-summary/',
   reportVersion: '/report/reportVersion/',
   distributor: '/report/distributor/',
+  distributorReport: '/report/distributor-report/',
   template: '/report/template/',
   configServer: '/report/config-server/',
   configValue: '/report/config-value/',
   report: '/report/report/',
+  panel: '/report/panel/',
   reportRoot: '/report/',
   contract: '/contract/',
   share: '/share/samplefile/',
@@ -231,6 +234,14 @@ export function getGenelist (parameter) {
   })
 }
 
+export function getGenelistSummary (parameter) {
+  return request({
+    url: api.genelistSummary,
+    method: 'get',
+    params: parameter
+  })
+}
+
 export function genelistDownload (parameter, filename) {
   return request({
     url: api.genelistFile,
@@ -337,6 +348,13 @@ export function getDistributor (parameter) {
   })
 }
 
+export function getDistributorInfo (recordId) {
+  return request({
+    url: api.distributor + recordId + '/',
+    method: 'get'
+  })
+}
+
 // 删除
 export function deleteDistributor (record) {
   return request({
@@ -351,6 +369,30 @@ export function saveDistributor (record) {
   return request({
     url: record.id > 0 ? api.distributor + record.id + '/' : api.distributor,
     method: record.id > 0 ? 'patch' : 'post',
+    data: record
+  })
+}
+
+export function getDistributorReport (parameter) {
+  return request({
+    url: api.distributorReport,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function saveDistributorReport (record) {
+  return request({
+    url: record.id > 0 ? api.distributorReport + record.id + '/' : api.distributorReport,
+    method: record.id > 0 ? 'patch' : 'post',
+    data: record
+  })
+}
+
+export function deleteDistributorReport (record) {
+  return request({
+    url: api.distributorReport + record.id + '/',
+    method: 'delete',
     data: record
   })
 }
@@ -528,6 +570,32 @@ export function getPack (record) {
   return request({
     url: api.shareTask + record.taskId + '/',
     method: 'get',
+    data: record
+  })
+}
+
+export function getPanel (parameter) {
+  return request({
+    url: api.panel,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 删除
+export function deletePanel (record) {
+  return request({
+    url: api.panel + record.id + '/',
+    method: 'delete',
+    data: record
+  })
+}
+
+// 创建或修改
+export function savePanel (record) {
+  return request({
+    url: record.id > 0 ? api.panel + record.id + '/' : api.panel,
+    method: record.id > 0 ? 'patch' : 'post',
     data: record
   })
 }
