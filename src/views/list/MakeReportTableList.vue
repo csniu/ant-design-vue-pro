@@ -159,10 +159,11 @@
           hasFeedback
         >
           <a-select
+            allowClear
             show-search
             :filter-option="false"
             placeholder="请选择"
-            v-decorator="['template', {rules: []}]"
+            v-decorator="['template', {rules: [],initialValue: mdl.template}]"
             :options="optTemplates"
             @search="(v) => this.optTemplates = this.templates.filter(r => r.title.includes(v))"
           />
@@ -406,6 +407,7 @@ export default {
     handleEdit (record) {
       console.log(record)
       this.mdl = { ...record }
+      this.mdl.template = this.mdl.template.toString()
       this.mdl.id = 0
       this.visible = true
 
