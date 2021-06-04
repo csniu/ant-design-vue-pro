@@ -94,6 +94,16 @@
           />
         </a-form-item>
 
+        <a-form-item
+          label="查询方法"
+          hasFeedback
+        >
+          <a-input
+            placeholder=""
+            v-decorator="['dataFunc', {rules: [{ required: true, message: '不能为空！', whitespace:true }]}]"
+          />
+        </a-form-item>
+
         <a-form-item label="启用">
           <a-switch v-decorator="['isActive', {valuePropName: 'checked', initialValue: mdl.isActive }]"/>
         </a-form-item>
@@ -136,6 +146,10 @@ const columns = [
     dataIndex: 'name'
   },
   {
+    title: '查询方法',
+    dataIndex: 'dataFunc'
+  },
+  {
     title: '启用',
     dataIndex: 'isActive',
     scopedSlots: { customRender: 'isActive' }
@@ -157,7 +171,7 @@ const columns = [
   }
 ]
 
-const fields = ['id', 'name', 'isActive']
+const fields = ['id', 'name', 'isActive', 'dataFunc']
 
 export default {
   name: 'TableList',
@@ -256,6 +270,7 @@ export default {
 
         var formData = new FormData()
         formData.append('name', values.name)
+        formData.append('dataFunc', values.dataFunc)
         formData.append('isActive', JSON.stringify(values.isActive))
         if (this.file) {
           formData.append('filePath', this.file)

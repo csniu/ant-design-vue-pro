@@ -26,11 +26,6 @@
               </a-form-item>
             </a-col>
             <a-col :md="8" :sm="24">
-              <a-form-item label="查询方法">
-                <a-input v-model="queryParam.dataFunc"/>
-              </a-form-item>
-            </a-col>
-            <a-col :md="8" :sm="24">
               <a-form-item label="Panel">
                 <a-input v-model="queryParam.panel"/>
               </a-form-item>
@@ -80,9 +75,12 @@
       <span slot="panel" slot-scope="text">
         {{ panel(text) }}
       </span>
-      <span slot="template" slot-scope="text">
-        {{ template(text) }}
-      </span>
+      <div slot="templates" slot-scope="text, record">
+        <template v-for="t in record.templates">
+          <p :key="t.id" style="margin-bottom: 2px"><ellipsis :length="20" tooltip > {{ t.name }}</ellipsis></p>
+        </template>
+      </div>
+
       <span slot="action" slot-scope="text, record">
         <template>
           <a @click="handleEdit(record)">修改</a>
@@ -141,13 +139,27 @@
           />
         </a-form-item>
 
+        <a-form-item label="模板" hasFeedback>
+          <a-select
+            show-search
+            mode="multiple"
+            :filter-option="false"
+            placeholder="请选择"
+            v-decorator="['templates',
+                          {rules: [{ required: true, message: '不能为空！'}], initialValue: reportMdl.templates}]"
+            :options="optTemplates"
+            @search="(v) => this.optTemplates = this.templates.filter(r => r.title.includes(v))"
+          />
+        </a-form-item>
+
         <a-form-item label="PANEL" hasFeedback>
           <a-select
             show-search
+            allowClear
             :filter-option="false"
-            placeholder="请选择"
+            placeholder="默认使用慧算版配置"
             v-decorator="['panel',
-                          {rules: [{ required: true, message: '不能为空！'}], initialValue: reportMdl.panel}]"
+                          {rules: [], initialValue: reportMdl.panel}]"
             :options="optPanels"
             @search="(v) => this.optPanels = this.panels.filter(r => r.title.includes(v))"
           />
@@ -156,32 +168,13 @@
         <a-form-item label="基因列表" hasFeedback>
           <a-select
             show-search
+            allowClear
             :filter-option="false"
-            placeholder="请选择"
+            placeholder="默认使用慧算版配置"
             v-decorator="['genelist',
-                          {rules: [{ required: true, message: '不能为空！'}], initialValue: reportMdl.genelist}]"
+                          {rules: [], initialValue: reportMdl.genelist}]"
             :options="genelists"
             @search="(v) => this.optGenelists = this.genelists.filter(r => r.title.includes(v))"
-          />
-        </a-form-item>
-
-        <a-form-item label="模板" hasFeedback>
-          <a-select
-            show-search
-            :filter-option="false"
-            placeholder="请选择"
-            v-decorator="['template',
-                          {rules: [{ required: true, message: '不能为空！'}], initialValue: reportMdl.template}]"
-            :options="optTemplates"
-            @search="(v) => this.optTemplates = this.templates.filter(r => r.title.includes(v))"
-          />
-        </a-form-item>
-
-        <a-form-item label="查询方法" hasFeedback>
-          <a-input
-            v-decorator="['dataFunc',
-                          {rules: [{ required: true, message: '不能为空！'},{ whitespace:true }],
-                           initialValue: reportMdl.dataFunc}]"
           />
         </a-form-item>
 
@@ -220,6 +213,11 @@ const columns = [
     scopedSlots: { customRender: 'report' }
   },
   {
+    title: '模板',
+    dataIndex: 'templates',
+    scopedSlots: { customRender: 'templates' }
+  },
+  {
     title: '别名',
     dataIndex: 'report_version_alias'
   },
@@ -234,15 +232,6 @@ const columns = [
     scopedSlots: { customRender: 'genelist' }
   },
   {
-    title: '模板',
-    dataIndex: 'template',
-    scopedSlots: { customRender: 'template' }
-  },
-  {
-    title: '查询方法',
-    dataIndex: 'dataFunc'
-  },
-  {
     title: '修改时间',
     dataIndex: 'updataDate',
     scopedSlots: { customRender: 'time' }
@@ -254,7 +243,7 @@ const columns = [
   }
 ]
 
-const fields = ['id', 'report', 'report_version_alias', 'panel', 'genelist', 'template', 'dataFunc']
+const fields = ['id', 'report', 'report_version_alias', 'panel', 'genelist', 'templates']
 
 export default {
   name: 'DistributorConfig',
@@ -363,10 +352,11 @@ export default {
   methods: {
     handleEdit (record) {
       this.reportMdl = { ...record }
+      this.reportMdl.distributor = this.reportMdl.distributor ? String(this.reportMdl.distributor) : null
       this.reportMdl.report_version = this.reportMdl.report_version ? String(this.reportMdl.report_version) : null
       this.reportMdl.panel = this.reportMdl.panel ? String(this.reportMdl.panel) : null
       this.reportMdl.genelist = this.reportMdl.genelist ? String(this.reportMdl.genelist) : null
-      this.reportMdl.template = this.reportMdl.template ? String(this.reportMdl.template) : null
+      this.reportMdl.templates = this.reportMdl.templates.map(t => String(t.id))
       this.visible = true
       console.log('handleEdit', this.reportMdl)
 
@@ -404,6 +394,9 @@ export default {
           this.$refs.table.refresh()
 
           this.$message.info('成功')
+        }).catch(res => {
+          console.log(res)
+          this.$message.info('失败')
         })
       }
       this.confirmLoading = false
