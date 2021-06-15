@@ -391,7 +391,7 @@ export default {
     },
     handleAddQueue (record) {
       this.confirmLoading = true
-      saveTask({ 'id': record.id, 'order': -new Date() / 1000 }).then(res => {
+      saveTask({ 'id': record.id, 'order': -new Date() / 1000, 'isManual': true }).then(res => {
         this.confirmLoading = false
         this.$refs.table.refresh()
         this.$message.info('添加任务成功')
