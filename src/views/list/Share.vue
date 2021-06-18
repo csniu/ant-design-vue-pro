@@ -14,7 +14,7 @@
               <p style="color: red">注：查找文件可能出现缺失和重复情况，请自行选择。 </p>
             </a-col>
 
-            <a-col :md="4" :sm="24">
+            <a-col :md="6" :sm="24">
               <a-form-item>
                 <a-list :split="false">
                   <a-list-item :style="{ 'padding-top': '2px', 'padding-bottom': '2px' }" >
@@ -35,13 +35,14 @@
                 </a-list>
               </a-form-item>
               <a-form-item>
-                <a-input v-model="queryParam.taskId" placeholder="任务 ID"/>
+                <a-input v-model="queryParam.taskId" placeholder="任务 ID" style="max-width: 200px;"/>
               </a-form-item>
               <a-button type="primary" @click="loadData">查询</a-button>
               <a-button style="margin-left: 8px" @click="reset">重置</a-button>
+              <a-button style="margin-left: 8px" @click="mytask" type="link">我的</a-button>
             </a-col>
 
-            <a-col :md="3" :sm="24">
+            <a-col :md="1" :sm="24">
             </a-col>
           </a-row>
         </a-form>
@@ -141,7 +142,38 @@
       </div>
     </a-card>
 
-    <a-card style="margin-top: 24px;" :bordered="false" v-show="!searchVisible && !visible">
+    <a-card style="margin-top: 24px;" :bordered="false" v-show="mytaskVisible">
+      <s-table
+        ref="table"
+        size="default"
+        rowKey="id"
+        :pageSize="20"
+        :columns="columns"
+        :data="loadMyTask"
+        :alert="false"
+        showPagination="auto"
+        tableLayout="auto"
+      >
+        <span slot="time" slot-scope="text">
+          {{ text | formatDate }}
+        </span>
+        <span slot="size" slot-scope="text">
+          {{ text | readTotal }}
+        </span>
+        <span slot="status" slot-scope="text, record">
+          {{ record | filterStatus }}
+        </span>
+        <span slot="action" slot-scope="text, record">
+          <template>
+            <a :href="record.url" target="_blank">下载</a>
+            <a-divider type="vertical" />
+            <a @click="copyUrl(record)">复制</a>
+          </template>
+        </span>
+      </s-table>
+    </a-card>
+
+    <a-card style="margin-top: 24px;" :bordered="false" v-show="!searchVisible && !visible &&!mytaskVisible">
       <div style="text-align: center;">
         <img src="~@/assets/Matchstick-Men.gif" style="margin: 0 auto;"/>
       </div>
@@ -152,9 +184,9 @@
 </template>
 
 <script>
-import { Ellipsis } from '@/components'
 import { BackTop } from 'ant-design-vue'
-import { getSampleFile, packSampleFiles, getPack } from '@/api/manage'
+import { STable, Ellipsis } from '@/components'
+import { getSampleFile, packSampleFiles, getPack, getPacks } from '@/api/manage'
 import { formatDate } from '../../utils/util.js'
 import user from '@/store/modules/user'
 
@@ -172,6 +204,42 @@ const TYPES = {
     'pdf': 'Report Pdf',
     'word': 'Report Word'
 }
+
+const columns = [
+  {
+    title: 'ID',
+    dataIndex: 'id'
+  },
+  {
+    title: '用户名',
+    dataIndex: 'user',
+    scopedSlots: { customRender: 'user' }
+  },
+  {
+    title: '数据量',
+    dataIndex: 'totalSize',
+    scopedSlots: { customRender: 'size' }
+  },
+  {
+    title: '创建时间',
+    dataIndex: 'create_date',
+    scopedSlots: { customRender: 'time' }
+  },
+  {
+    title: '更新时间',
+    dataIndex: 'updata_date',
+    scopedSlots: { customRender: 'time' }
+  },
+  {
+    title: '状态',
+    scopedSlots: { customRender: 'status' }
+  },
+  {
+    title: '操作',
+    dataIndex: 'action',
+    scopedSlots: { customRender: 'action' }
+  }
+]
 
 function isPowerUser () {
   console.log(user.state.isSuperuser)
@@ -193,13 +261,16 @@ export default {
   name: 'Share',
   components: {
     Ellipsis,
+    STable,
     'backtop': BackTop
   },
   data () {
     this.powerUser = isPowerUser()
+    this.columns = columns
     return {
       visible: false,
       searchVisible: false,
+      mytaskVisible: false,
       packStatus: '',
       packInfo: {},
       loading: false,
@@ -208,7 +279,19 @@ export default {
       queryParam: {},
       data: [],
       files: [],
-      totalSize: 0
+      totalSize: 0,
+      loadMyTask: parameter => {
+        const queryParam = this.powerUser ? {} : { 'user': user.state.name }
+        const requestParameters = Object.assign({}, parameter, queryParam)
+        console.log('loadData request parameters:', requestParameters)
+        return getPacks(requestParameters)
+          .then(res => {
+            console.log(res)
+            return res.data
+          }).catch(res => {
+          this.$message.error('查询失败，请稍后再试')
+        })
+      }
     }
   },
   filters: {
@@ -224,7 +307,29 @@ export default {
     formatDate (time) {
       var date = new Date(time)
       return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
+      },
+
+    readTotal (dataSize) {
+      if (!dataSize) {
+        return ''
       }
+
+      if (dataSize < 1024 * 1024 * 1024) {
+        return (dataSize / (1024 * 1024)).toFixed(2) + 'M'
+      } else {
+        return (dataSize / (1024 * 1024 * 1024)).toFixed(2) + 'G'
+      }
+    },
+
+    filterStatus (record) {
+      if (record.url) {
+        return '完成'
+      } else if (record.errorMessage) {
+        return '失败'
+      } else {
+        return '排队中'
+      }
+    }
   },
   methods: {
     loadData () {
@@ -278,12 +383,14 @@ export default {
             })
           this.visible = true
           this.searchVisible = false
+          this.mytaskVisible = false
           this.packStatus = ''
         } else {
           getPack(requestParameters)
             .then(res => {
               this.searchVisible = true
               this.visible = false
+              this.mytaskVisible = false
               this.packInfo = res.data
               if (this.packInfo.totalSize < 1024 * 1024 * 1024) {
                 this.totalSize = (this.packInfo.totalSize / (1024 * 1024)).toFixed(2) + 'M'
@@ -319,6 +426,12 @@ export default {
       this.packStatus = ''
       this.packInfo = {}
       this.searchVisible = false
+      this.mytaskVisible = false
+    },
+    mytask () {
+      this.visible = false
+      this.searchVisible = false
+      this.mytaskVisible = true
     },
     packFiles () {
       var totalBit = 0
@@ -358,6 +471,27 @@ export default {
 `
       this.$copyText(text).then(message => {
         console.log('copy', message)
+        this.$message.success('复制完毕')
+      }).catch(err => {
+        console.log('copy.err', err)
+        this.$message.error('复制失败')
+      })
+    },
+    copyUrl (record) {
+        const updateTime = new Date(record.updata_date)
+        const now = new Date()
+        if (now.getTime() - updateTime.getTime() >= 7 * 24 * 3600 * 1000) {
+          this.$message.error('链接已失效')
+          return ''
+        }
+
+      const timeValidity = formatDate(new Date(updateTime.setDate(updateTime.getDate() + 7)), 'yyyy-MM-dd hh:mm:ss')
+      const text = `
+下载链接: ${record.url}
+链接有效期截止至 ${timeValidity}，请及时下载。
+`
+
+      this.$copyText(text).then(message => {
         this.$message.success('复制完毕')
       }).catch(err => {
         console.log('copy.err', err)

@@ -574,6 +574,14 @@ export function getPack (record) {
   })
 }
 
+export function getPacks (parameter) {
+  return request({
+    url: api.shareTask,
+    method: 'get',
+    params: parameter
+  })
+}
+
 export function getPanel (parameter) {
   return request({
     url: api.panel,
