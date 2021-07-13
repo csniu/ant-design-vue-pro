@@ -782,7 +782,7 @@ export default {
         lst: 15,
         total_score: 33
       },
-      chem: 'G600',
+      chem: '慧算大Panel',
       qc: {
         total_reads: 30720160,
         mappped_reads: 30701440,
