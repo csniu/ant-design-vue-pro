@@ -26,7 +26,16 @@ const api = {
   reportRoot: '/report/',
   contract: '/contract/',
   share: '/share/samplefile/',
-  shareTask: '/share/task/'
+  shareTask: '/share/task/',
+
+  baseMutation: '/mock/mutation/',
+  baseHla: '/mock/hla/',
+  baseNeo: '/mock/neo/',
+  baseReport: '/mock/report/',
+  baseCancer: '/mock/cancer/',
+  baseVirus: '/mock/virus/',
+  mock: '/mock/sample/',
+  chemPanel: '/mock/chem-panels/'
 
 }
 
@@ -605,5 +614,78 @@ export function savePanel (record) {
     url: record.id > 0 ? api.panel + record.id + '/' : api.panel,
     method: record.id > 0 ? 'patch' : 'post',
     data: record
+  })
+}
+
+export function getMutations (parameter) {
+  return request({
+    url: api.baseMutation,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function getHla (parameter) {
+  return request({
+    url: api.baseHla,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function getNeo (parameter) {
+  return request({
+    url: api.baseNeo,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function getMockReport (parameter) {
+  return request({
+    url: api.baseReport,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function getCancer (parameter) {
+  return request({
+    url: api.baseCancer,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function getVirus (parameter) {
+  return request({
+    url: api.baseVirus,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function getMockSample (parameter) {
+  return request({
+    url: api.mock,
+    method: 'get',
+    params: parameter
+  })
+}
+
+// 创建或修改
+export function saveMockSample (record) {
+  return request({
+    url: api.mock,
+    method: 'post',
+    data: record
+  })
+}
+
+export function getChemPanel (parameter) {
+  return request({
+    url: api.chemPanel,
+    method: 'get',
+    params: parameter
   })
 }

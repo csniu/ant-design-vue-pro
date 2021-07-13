@@ -39,6 +39,13 @@ export const asyncRouterMap = [
         component: () => import('@/views/list/AnalysisTableList'),
         meta: { title: '分析状态', keepAlive: true, icon: 'radar-chart', permission: [ 'analysis' ] }
       },
+      {
+        path: '/mock/:pageNo([1-9]\\d*)?',
+        name: 'SamplMock',
+        hideChildrenInMenu: true, // 强制显示 MenuItem 而不是 SubMenu
+        component: () => import('@/views/list/Mock'),
+        meta: { title: '数据模拟', keepAlive: true, icon: 'coffee', permission: [ 'mock' ] }
+      },
       // {
       //   path: '/contract/:pageNo([1-9]\\d*)?',
       //   name: 'contract',
@@ -186,6 +193,22 @@ export const asyncRouterMap = [
         hidden: true,
         meta: { title: '样本详情', icon: 'profile' },
         component: () => import('@/views/profile/advanced/sample')
+      },
+      // forms
+      {
+        path: '/form',
+        redirect: '/form/base-form',
+        component: RouteView,
+        meta: { title: '表单', icon: 'form' },
+        hidden: true,
+        children: [
+          {
+            path: '/form/advanced-form',
+            name: 'Mock',
+            component: () => import('@/views/form/mockForm/mockForm'),
+            meta: { title: '数据模拟', keepAlive: true, permission: ['mock'] }
+          }
+        ]
       }
     ]
   },
