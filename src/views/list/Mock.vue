@@ -168,7 +168,7 @@
         </span>
 
         <span slot="sample_path" slot-scope="text">
-          <ellipsis :length="15" tooltip>{{ text.replace('/usr/src/', '/fastzone/worker/worker_report/csniu/djrest/') }}</ellipsis>
+          <ellipsis :length="15" tooltip>{{ String(text).replace('/usr/src/', '/fastzone/worker/worker_report/csniu/djrest/') }}</ellipsis>
         </span>
 
         <span slot="action" slot-scope="text, record">
