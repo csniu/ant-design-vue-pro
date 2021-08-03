@@ -141,12 +141,15 @@
 
           <a-col :xl="{span: 6}" :lg="{span: 6}" :md="{span: 12}" :sm="24">
             <a-form-item label="经销商">
-              <a-input
-                placeholder=""
-                v-decorator="[
-                  'sampleInfo.distributor',
-                  {rules: [{ message: '请输入', whitespace: true}], initialValue: data.sampleInfo.distributor}
-                ]" />
+              <a-select
+                show-search
+                allowClear
+                :filter-option="true"
+                placeholder="经销商"
+                v-decorator="['sampleInfo.distributor',
+                              {rules: [], initialValue: data.sampleInfo.distributor_code}]"
+                :options="distributorOptines"
+              />
             </a-form-item>
           </a-col>
         </a-row>
@@ -703,7 +706,7 @@ import moment from 'moment'
 import FooterToolBar from '@/components/FooterToolbar'
 import { baseMixin } from '@/store/app-mixin'
 import { formatDate } from '../../../utils/util.js'
-import { getMutations, getHla, getNeo, getMockReport, getCancer, getVirus, saveMockSample, getChemPanel } from '@/api/manage'
+import { getMutations, getHla, getNeo, getMockReport, getCancer, getVirus, saveMockSample, getChemPanel, getMockDistributor } from '@/api/manage'
 
 export default {
   name: 'MockForm',
@@ -726,6 +729,7 @@ export default {
       cancers: {},
       virus: {},
       chemPanels: [],
+      distributors: {},
 
       cancerOptines: [],
       targetOptines: [],
@@ -736,6 +740,7 @@ export default {
       neoOptines: [],
       reportOptines: [],
       virusOptines: [],
+      distributorOptines: [],
 
       data: {
         sampleInfo: {
@@ -751,6 +756,7 @@ export default {
           detect_method: 'NGS',
           detect_project: 'smart556',
           distributor: '',
+          distributor_code: null,
           hosipital: '',
           sample_type: '血液',
           quantity: '',
@@ -814,6 +820,10 @@ export default {
       this.form.validateFields((errors, values) => {
         if (!errors) {
           values.sample_id = values.sampleInfo.sample_id
+
+          values.sampleInfo.distributor_code = values.sampleInfo.distributor
+          values.sampleInfo.distributor = this.distributors[values.sampleInfo.distributor_code]
+
           values.mutation = values.target.concat(values.mmr)
           delete values.target
           delete values.mmr
@@ -930,6 +940,20 @@ export default {
       })
       .catch((res) => {
         console.log('getMockReport error', res)
+      })
+
+      getMockDistributor({ 'pageSize': 1000 })
+      .then(res => {
+        console.log('getMockDistributor', res)
+        for (let i = 0, len = res.data.results.length; i < len; i++) {
+          var tmp = res.data.results[i]
+          this.distributors[tmp.en] = tmp.ch
+          this.distributorOptines.push({ 'key': tmp.en, 'title': tmp.ch, 'disabled': false })
+        }
+        console.log('getMockDistributor', this.distributorOptines)
+      })
+      .catch((res) => {
+        console.log('getMockDistributor error', res)
       })
 
     getCancer({ 'pageSize': 1000 })

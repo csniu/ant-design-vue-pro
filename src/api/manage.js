@@ -35,7 +35,8 @@ const api = {
   baseCancer: '/mock/cancer/',
   baseVirus: '/mock/virus/',
   mock: '/mock/sample/',
-  chemPanel: '/mock/chem-panels/'
+  chemPanel: '/mock/chem-panels/',
+  mockDistributor: '/mock/distributor/'
 
 }
 
@@ -685,6 +686,14 @@ export function saveMockSample (record) {
 export function getChemPanel (parameter) {
   return request({
     url: api.chemPanel,
+    method: 'get',
+    params: parameter
+  })
+}
+
+export function getMockDistributor (parameter) {
+  return request({
+    url: api.mockDistributor,
     method: 'get',
     params: parameter
   })
